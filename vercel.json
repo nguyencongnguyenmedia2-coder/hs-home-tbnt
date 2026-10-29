@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/admin", "destination": "/app/admin.html" },
+    { "source": "/admin.html", "destination": "/app/admin.html" },
+    { "source": "/", "destination": "/app/index.html" },
+    { "source": "/index.html", "destination": "/app/index.html" },
+    { "source": "/:path*", "destination": "/app/:path*" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" }
+      ]
+    }
+  ]
+}
