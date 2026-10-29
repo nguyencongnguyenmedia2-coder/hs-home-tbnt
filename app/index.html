@@ -64,8 +64,12 @@
                 </button>
             </nav>
 
-            <!-- HEADER ACTIONS (CHỈ GIỮ ĐÃ LƯU & BÁO GIÁ, BỎ SO SÁNH KHỎI MENU) -->
+            <!-- HEADER ACTIONS (CÓ NÚT QUẢN TRỊ ADMIN CHO APP EXE & DESKTOP) -->
             <div class="header-actions">
+                <a href="admin.html" class="btn-icon btn-icon-admin" id="btn-admin-nav" title="Cổng Quản Trị Hệ Thống (Phím tắt: F2 hoặc Ctrl+Shift+A)">
+                    <span class="icon">⚙️</span>
+                    <span class="action-label-btn">Quản Trị</span>
+                </a>
                 <button class="btn-icon" id="btn-favorites" title="Sản phẩm đã lưu" onclick="showFavorites()">
                     <span class="icon">❤️</span>
                     <span class="action-label-btn">Đã lưu</span>
@@ -439,6 +443,12 @@
             <div class="site-footer-copyright">
                 © 2026 <strong>NGUYỄN CÔNG NGUYÊN</strong>. All Rights Reserved.
             </div>
+
+            <div class="site-footer-admin-link" style="margin-top:14px">
+                <a href="admin.html" class="footer-admin-pill" title="Cổng Quản Trị Hệ Thống">
+                    <span>⚙️</span> Cổng Quản Trị Hệ Thống (/admin) — Cập Nhật Bảng Giá &amp; Tồn Kho (F2)
+                </a>
+            </div>
         </div>
     </footer>
 
@@ -495,6 +505,12 @@
             </div>
         </div>
     </div>
+
+    <!-- FLOATING ADMIN SHORTCUT BUTTON (CHO PHÉP VÀO ADMIN MỌI LÚC TRÊN DESKTOP/APP EXE) -->
+    <a href="admin.html" class="fab-admin" id="fab-admin-shortcut" title="Mở Cổng Quản Trị Hệ Thống (Phím tắt: F2 hoặc Ctrl+Shift+A)">
+        <span class="fab-admin-icon">⚙️</span>
+        <span class="fab-admin-text">Quản Trị Admin <kbd style="font-size:10px;background:rgba(255,255,255,0.2);padding:2px 5px;border-radius:4px;margin-left:2px">F2</kbd></span>
+    </a>
 
     <!-- FLOATING ACTION BUTTON -->
     <button class="fab" id="fab-scroll-top" onclick="scrollToTop()" title="Lên đầu trang" style="display:none">↑</button>

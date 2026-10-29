@@ -1683,4 +1683,13 @@ function handleDeepLink() {
     }
 }
 
+// ======================== UNIVERSAL ADMIN SHORTCUT (F2 / Ctrl+Shift+A) ========================
+document.addEventListener('keydown', function(e) {
+    // F2 or Ctrl + Shift + A
+    if (e.key === 'F2' || (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a'))) {
+        e.preventDefault();
+        window.location.href = 'admin.html';
+    }
+});
+
 init();

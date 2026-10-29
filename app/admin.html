@@ -583,8 +583,8 @@
             </div>
 
             <div style="margin-top:20px">
-                <a href="/" style="font-size:13px;color:var(--admin-sub);text-decoration:none;font-weight:600">
-                    ← Quay lại Website Bán Hàng
+                <a href="index.html" style="font-size:13px;color:var(--admin-sub);text-decoration:none;font-weight:600">
+                    ← Quay lại Website Bán Hàng (F2)
                 </a>
             </div>
         </div>
@@ -616,10 +616,10 @@
                     <button class="btn btn-outline btn-sm" onclick="handleLogout()" style="background:#0F172A;color:#FCA5A5;border-color:#EF4444">
                         🚪 Đăng Xuất
                     </button>
-                    <a href="/" class="btn btn-outline btn-sm" style="background:#0F172A;color:#fff;border-color:var(--admin-border)">
+                    <a href="index.html" class="btn btn-outline btn-sm" style="background:#0F172A;color:#fff;border-color:var(--admin-border)">
                         🌐 Về Trang Bán Hàng
                     </a>
-                    <a href="/#tab-sheet" class="btn btn-outline btn-sm" style="background:#0F172A;color:#fff;border-color:var(--admin-border)">
+                    <a href="index.html?tab=pricelist" class="btn btn-outline btn-sm" style="background:#0F172A;color:#fff;border-color:var(--admin-border)">
                         📊 Xem Bảng Giá Live
                     </a>
                     <button class="btn btn-primary btn-sm" onclick="loadSystemStatus(true)">
@@ -1397,6 +1397,14 @@
                 toast.style.display = 'none';
             }, 4000);
         }
+
+        // F2 to return to storefront
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                window.location.href = 'index.html';
+            }
+        });
     </script>
 </body>
 </html>
