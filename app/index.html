@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#C8102E">
+    <title>HSH Sales Pro — Tra Cứu Thiết Bị Nhà Tắm &amp; Nhà Bếp</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <div class="header-left">
+                <!-- Hamburger Menu Toggle for Mobile/Tablet -->
+                <button class="btn-hamburger" id="btn-hamburger" onclick="toggleMobileMenu()" aria-label="Mở Menu">
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                </button>
+
+                <!-- Brand Logo Official -->
+                <div class="header-brand" onclick="switchTab('catalog')" style="cursor:pointer" title="Về trang chủ Tra Cứu">
+                    <img src="images/logo_hsh.png" alt="Hoa Sen Home" class="brand-logo-img">
+                    <div class="logo-text">
+                        <div class="brand-title-wrap">
+                            <span class="logo-main">HOA SEN HOME</span>
+                            <span class="badge-edition">SALES PRO</span>
+                        </div>
+                        <span class="logo-sub">Thiết Bị Nhà Tắm &amp; Bếp Miền Trung</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DESKTOP NAVIGATION TABS (PROFESSIONAL & CLEAN) -->
+            <nav class="main-nav" id="main-nav">
+                <button class="nav-tab active" data-tab="catalog" onclick="switchTab('catalog')">
+                    <span class="tab-icon">🔍</span> <span class="tab-label">Tra Cứu SP</span>
+                </button>
+                <button class="nav-tab" data-tab="combos" onclick="switchTab('combos')">
+                    <span class="tab-icon">🔥</span> <span class="tab-label">Album &amp; Combo</span>
+                    <span class="nav-badge-pill">Hot</span>
+                </button>
+                <button class="nav-tab" data-tab="pricelist" onclick="switchTab('pricelist')">
+                    <span class="tab-icon">📊</span> <span class="tab-label">Bảng Giá Excel</span>
+                </button>
+                <button class="nav-tab" data-tab="promos" onclick="switchTab('promos')">
+                    <span class="tab-icon">🎁</span> <span class="tab-label">Khuyến Mãi</span>
+                </button>
+                <button class="nav-tab" data-tab="policies" onclick="switchTab('policies')">
+                    <span class="tab-icon">🛠️</span> <span class="tab-label">Lắp Đặt &amp; CS</span>
+                </button>
+                <button class="nav-tab" data-tab="knowledge" onclick="switchTab('knowledge')">
+                    <span class="tab-icon">📚</span> <span class="tab-label">Kiến Thức Mã</span>
+                </button>
+                <button class="nav-tab" data-tab="stores" onclick="switchTab('stores')">
+                    <span class="tab-icon">🏪</span> <span class="tab-label">Chi Nhánh</span>
+                </button>
+            </nav>
+
+            <!-- HEADER ACTIONS (CHỈ GIỮ ĐÃ LƯU & BÁO GIÁ, BỎ SO SÁNH KHỎI MENU) -->
+            <div class="header-actions">
+                <button class="btn-icon" id="btn-favorites" title="Sản phẩm đã lưu" onclick="showFavorites()">
+                    <span class="icon">❤️</span>
+                    <span class="action-label-btn">Đã lưu</span>
+                    <span class="badge" id="fav-badge" style="display:none">0</span>
+                </button>
+                <button class="btn-icon btn-icon-quote" id="btn-quote" title="Giỏ báo giá" onclick="showQuote()">
+                    <span class="icon">📋</span>
+                    <span class="action-label-btn">Báo giá</span>
+                    <span class="badge badge-quote" id="quote-badge" style="display:none">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE DRAWER MENU & BACKDROP -->
+    <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeMobileMenu()"></div>
+    <aside class="mobile-drawer" id="mobile-drawer">
+        <div class="drawer-header">
+            <div class="drawer-brand">
+                <div class="brand-badge-emblem mini">
+                    <span class="emblem-lotus">🪷</span>
+                </div>
+                <div>
+                    <div class="drawer-title">HOA SEN HOME</div>
+                    <div class="drawer-sub">Sales Pro Miền Trung</div>
+                </div>
+            </div>
+            <button class="drawer-close" onclick="closeMobileMenu()" aria-label="Đóng menu">✕</button>
+        </div>
+
+        <div class="drawer-body">
+            <div class="drawer-section-title">CHỨC NĂNG CHÍNH</div>
+            <ul class="drawer-nav-list">
+                <li>
+                    <a href="javascript:void(0)" onclick="switchTab('catalog');closeMobileMenu()" class="drawer-item active" data-tab="catalog">
+                        <span class="item-icon">🔍</span>
+                        <div class="item-text">
+                            <strong>Sản Phẩm &amp; Ảnh Thật</strong>
+                            <small>Tra cứu 1.800+ mã, kích thước, ảnh</small>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="switchTab('combos');closeMobileMenu()" class="drawer-item" data-tab="combos">
+                        <span class="item-icon">📦</span>
+                        <div class="item-text">
+                            <strong>Album &amp; Combo Tiết Kiệm</strong>
+                            <small>142 SP Studio 2026, Top SKU, Combo sẵn</small>
+                        </div>
+                        <span class="drawer-badge">HOT</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="switchTab('pricelist');closeMobileMenu()" class="drawer-item" data-tab="pricelist">
+                        <span class="item-icon">📊</span>
+                        <div class="item-text">
+                            <strong>Bảng Giá &amp; Tồn Kho Tổng Hợp</strong>
+                            <small>Excel đa cấp, 17 kho Miền Trung</small>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="switchTab('promos');closeMobileMenu()" class="drawer-item" data-tab="promos">
+                        <span class="item-icon">🎁</span>
+                        <div class="item-text">
+                            <strong>CTKM &amp; Hàng Xả Kho</strong>
+                            <small>Chương trình đang chạy, quà tặng Tuslo</small>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="switchTab('policies');closeMobileMenu()" class="drawer-item" data-tab="policies">
+                        <span class="item-icon">🛠️</span>
+                        <div class="item-text">
+                            <strong>Chi Phí Lắp Đặt &amp; Chính Sách</strong>
+                            <small>Bảng giá công thợ, CK tháng/quý</small>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="switchTab('knowledge');closeMobileMenu()" class="drawer-item" data-tab="knowledge">
+                        <span class="item-icon">📚</span>
+                        <div class="item-text">
+                            <strong>Kiến Thức SP &amp; Đổi Mã Cũ-Mới</strong>
+                            <small>Bảo hành, công nghệ xả, mã phụ</small>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="switchTab('stores');closeMobileMenu()" class="drawer-item" data-tab="stores">
+                        <span class="item-icon">🏪</span>
+                        <div class="item-text">
+                            <strong>Danh Sách Cửa Hàng (DSCH)</strong>
+                            <small>Địa chỉ &amp; liên hệ các chi nhánh</small>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin.html" class="drawer-item" style="margin-top:6px;background:rgba(200,16,46,0.08);color:var(--hsh-red);border:1px dashed var(--hsh-red)">
+                        <span class="item-icon">⚙️</span>
+                        <div class="item-text">
+                            <strong>Cổng Quản Trị Admin (/admin)</strong>
+                            <small>Upload Excel, cập nhật giá &amp; tồn kho</small>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="drawer-section-title">TIỆN ÍCH BÁN HÀNG</div>
+            <div class="drawer-quick-actions">
+                <button class="drawer-quick-btn" onclick="showQuote();closeMobileMenu()">
+                    <span class="quick-icon">📋</span>
+                    <span>Báo Giá (<b id="drawer-quote-count">0</b>)</span>
+                </button>
+                <button class="drawer-quick-btn" onclick="showFavorites();closeMobileMenu()">
+                    <span class="quick-icon">❤️</span>
+                    <span>Yêu Thích (<b id="drawer-fav-count">0</b>)</span>
+                </button>
+                <button class="drawer-quick-btn" onclick="showCompare();closeMobileMenu()">
+                    <span class="quick-icon">⚖️</span>
+                    <span>So Sánh (<b id="drawer-compare-count">0</b>)</span>
+                </button>
+            </div>
+
+            <div class="drawer-footer-info">
+                <div class="drawer-footer-line"><strong>Hệ Thống Phân Phối Miền Trung</strong></div>
+                <div class="drawer-footer-line">Tập Đoàn Hoa Sen — Chi nhánh HSH</div>
+                <div class="drawer-footer-line" style="margin-top:6px;color:#1e293b;font-weight:700">
+                    Thiết kế &amp; phát triển bởi: <span style="color:var(--hsh-red)">NGUYỄN CÔNG NGUYÊN</span>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+                    <a href="tel:0344979307" style="font-size:11px;padding:3px 8px;background:#fff;border:1px solid #cbd5e1;border-radius:99px;color:#0f172a;text-decoration:none;font-weight:700">📞 0344 979 307</a>
+                    <a href="https://zalo.me/0934811307" target="_blank" rel="noopener noreferrer" style="font-size:11px;padding:3px 8px;background:#0284c7;color:#fff;border-radius:99px;text-decoration:none;font-weight:700">💬 Zalo: 0934 811 307</a>
+                </div>
+                <div style="font-size:10.5px;color:#94a3b8;margin-top:8px">© 2026 NGUYỄN CÔNG NGUYÊN. All Rights Reserved.</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <button class="bottom-nav-item active" data-tab="catalog" onclick="switchTab('catalog')">
+            <span class="bottom-icon">🔍</span>
+            <span class="bottom-label">Tra Cứu</span>
+        </button>
+        <button class="bottom-nav-item" data-tab="combos" onclick="switchTab('combos')">
+            <span class="bottom-icon">📦</span>
+            <span class="bottom-label">Album/Combo</span>
+        </button>
+        <button class="bottom-nav-item" data-tab="pricelist" onclick="switchTab('pricelist')">
+            <span class="bottom-icon">📊</span>
+            <span class="bottom-label">Bảng Giá</span>
+        </button>
+        <button class="bottom-nav-item bottom-nav-quote" onclick="showQuote()">
+            <span class="bottom-icon">📋</span>
+            <span class="bottom-label">Báo Giá</span>
+            <span class="bottom-badge" id="bottom-quote-badge" style="display:none">0</span>
+        </button>
+        <button class="bottom-nav-item" onclick="toggleMobileMenu()">
+            <span class="bottom-icon">☰</span>
+            <span class="bottom-label">Menu Thêm</span>
+        </button>
+    </nav>
+
+    <!-- OFFLINE BANNER -->
+    <div id="offline-banner" style="display:none;background:#F39C12;color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:600">
+        📴 Đang hoạt động ở chế độ Offline — Dữ liệu &amp; Hình ảnh đã được lưu sẵn trên thiết bị
+    </div>
+
+    <!-- ==================== TAB 1 & 2: CATALOG & PRICELIST SEARCH HEADER ==================== -->
+    <div id="catalog-search-wrapper">
+        <section class="search-section">
+            <div class="search-container">
+                <div class="stats-bar" id="stats-bar">
+                    <span class="stat-item" id="stat-total">⏳ Đang tải dữ liệu sản phẩm và hình ảnh...</span>
+                </div>
+
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="Tìm theo Tên SP, Mã SP, Mã Item, Mã cũ/mới, Kích thước (VD: C-117, INAX, ARRT012, 800x440...)" autocomplete="off" spellcheck="false">
+                    <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</button>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="filter-row">
+                    <div class="filter-select-wrap">
+                        <span class="filter-select-icon">🏷️</span>
+                        <select id="filter-brand" onchange="applyFilters()">
+                            <option value="">Tất cả thương hiệu</option>
+                        </select>
+                    </div>
+                    <div class="filter-select-wrap">
+                        <span class="filter-select-icon">📦</span>
+                        <select id="filter-group" onchange="applyFilters()">
+                            <option value="">Tất cả nhóm SP</option>
+                        </select>
+                    </div>
+                    <div class="filter-select-wrap">
+                        <span class="filter-select-icon">🏭</span>
+                        <select id="filter-warehouse" onchange="applyFilters()">
+                            <option value="">Tất cả kho (17 kho)</option>
+                        </select>
+                    </div>
+                    <div class="filter-select-wrap">
+                        <span class="filter-select-icon">💰</span>
+                        <select id="filter-price-type" onchange="changePriceType(this.value)">
+                            <option value="gia_ban_le">Hiển thị: Giá bán lẻ</option>
+                            <option value="gia_niem_yet">Giá niêm yết (Có VAT)</option>
+                            <option value="gia_cong_bo">Giá công bố (Chưa VAT)</option>
+                            <option value="gia_thau_tho">Giá thầu thợ (CK 10%)</option>
+                            <option value="than_thiet_c1">Thân thiết C1 (CK 20%)</option>
+                            <option value="than_thiet_c2">Thân thiết C2 (CK 20%)</option>
+                            <option value="dai_ly_c1">Đại lý C1 (CK 20%)</option>
+                            <option value="dai_ly_c2">Đại lý C2 (CK 20%)</option>
+                            <option value="dai_ly_c3">Đại lý C3 (CK 20%)</option>
+                            <option value="dai_ly_c4">Đại lý C4 (CK 20%)</option>
+                            <option value="npp_c1">NPP C1 (CK 22%)</option>
+                            <option value="npp_c2">NPP C2 (CK 22%)</option>
+                            <option value="npp_c3">NPP C3 (CK 25%)</option>
+                            <option value="gia_ban_mau">Chính sách bán mẫu</option>
+                            <option value="gia_catalogue">Giá Catalogue</option>
+                            <option value="gia_nhan_vien">Giá nhân viên HSH (BCL)</option>
+                        </select>
+                    </div>
+                    <div class="filter-select-wrap">
+                        <span class="filter-select-icon">↕️</span>
+                        <select id="filter-sort" onchange="applyFilters()">
+                            <option value="default">Sắp xếp: Mặc định</option>
+                            <option value="img_first">Ưu tiên có ảnh thật trước</option>
+                            <option value="price_asc">Giá thấp → cao</option>
+                            <option value="price_desc">Giá cao → thấp</option>
+                            <option value="stock_desc">Tồn kho nhiều nhất</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quick Toggle Chips -->
+                <div class="quick-toggles">
+                    <label class="toggle-filter toggle-img">
+                        <input type="checkbox" id="filter-has-img" onchange="applyFilters()">
+                        <span class="toggle-dot"></span>
+                        <span>🖼️ Có ảnh thật</span>
+                    </label>
+                    <label class="toggle-filter toggle-stock">
+                        <input type="checkbox" id="filter-instock" onchange="applyFilters()">
+                        <span class="toggle-dot"></span>
+                        <span>✅ Còn tồn kho</span>
+                    </label>
+                    <label class="toggle-filter toggle-hot">
+                        <input type="checkbox" id="filter-hot" onchange="applyFilters()">
+                        <span class="toggle-dot"></span>
+                        <span>🔥 Hàng HOT</span>
+                    </label>
+                    <label class="toggle-filter toggle-promo">
+                        <input type="checkbox" id="filter-promo" onchange="applyFilters()">
+                        <span class="toggle-dot"></span>
+                        <span>🎁 Xả kho / Quà tặng</span>
+                    </label>
+                    <label class="toggle-filter toggle-online">
+                        <input type="checkbox" id="filter-online" onchange="applyFilters()">
+                        <span class="toggle-dot"></span>
+                        <span>🌐 Ưu tiên Online</span>
+                    </label>
+                    <button class="btn-reset-filter" id="btn-reset-filter" onclick="resetFilters()">↺ Xóa bộ lọc</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BRAND QUICK ACCESS STRIP -->
+        <div class="brand-strip-wrap">
+            <div class="brand-strip" id="brand-strip"></div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main">
+        <!-- TAB 1: CATALOG (GRID / LIST) -->
+        <section id="tab-catalog" class="tab-panel active">
+            <div class="results-section">
+                <div class="results-header">
+                    <span id="results-count" class="results-count">Đang tải...</span>
+                    <div class="view-toggle">
+                        <button class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Dạng lưới thẻ ảnh">⊞ Lưới</button>
+                        <button class="view-btn" id="btn-list" onclick="setView('list')" title="Dạng danh sách">☰ Danh sách</button>
+                    </div>
+                </div>
+
+                <div id="products-container" class="products-grid">
+                    <div class="loading-skeleton">
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
+                </div>
+
+                <div id="pagination" class="pagination"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: EXCEL-STYLE MASTER PRICE & INVENTORY TABLE -->
+        <section id="tab-pricelist" class="tab-panel" style="display:none">
+            <div class="results-section">
+                <div class="results-header" style="flex-wrap:wrap;gap:10px">
+                    <div>
+                        <h2 style="font-size:17px;font-weight:800">📊 Bảng Giá Đa Cấp &amp; Tồn Kho Tổng Hợp (Chuẩn File Excel)</h2>
+                        <span id="table-results-count" class="results-count"></span>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn btn-success btn-sm" onclick="exportFilteredTableCSV()">📥 Xuất Bảng Giá Đang Lọc (.CSV)</button>
+                    </div>
+                </div>
+                <div class="excel-table-wrap" id="pricelist-table-container"></div>
+                <div id="table-pagination" class="pagination"></div>
+            </div>
+        </section>
+
+        <!-- TAB: COMBO, TOP ĐỀ XUẤT, BỒN CẦU THÔNG MINH, BẢNG GIÁ BẾP (v4) -->
+        <section id="tab-combos" class="tab-panel" style="display:none">
+            <div class="results-section" id="combos-container"></div>
+        </section>
+
+        <!-- TAB 3: PROMOTIONS, CLEARANCE & NEW LAUNCH -->
+        <section id="tab-promos" class="tab-panel" style="display:none">
+            <div class="results-section" id="promos-container"></div>
+        </section>
+
+        <!-- TAB 4: INSTALLATION COSTS & SALES POLICIES -->
+        <section id="tab-policies" class="tab-panel" style="display:none">
+            <div class="results-section" id="policies-container"></div>
+        </section>
+
+        <!-- TAB 5: PRODUCT KNOWLEDGE, ACCESSORIES, CODE CONVERSION & WARRANTY -->
+        <section id="tab-knowledge" class="tab-panel" style="display:none">
+            <div class="results-section" id="knowledge-container"></div>
+        </section>
+
+        <!-- TAB 6: STORE DIRECTORY (DSCH) -->
+        <section id="tab-stores" class="tab-panel" style="display:none">
+            <div class="results-section" id="stores-container"></div>
+        </section>
+    </main>
+
+    <!-- ==================== SITE FOOTER (NGUYỄN CÔNG NGUYÊN) ==================== -->
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="site-footer-brand">
+                <img src="images/logo_hsh.png" alt="Hoa Sen Home" class="site-footer-logo" onerror="this.src='favicon.ico'">
+                <div style="text-align:left">
+                    <div style="font-size:16px;font-weight:800;color:#FFFFFF;letter-spacing:-0.2px">HOA SEN HOME — SALES PRO 2026</div>
+                    <div style="font-size:12.5px;color:var(--hsh-gold);font-weight:600">Hệ Thống Phân Phối Thiết Bị Nhà Tắm &amp; Nhà Bếp Miền Trung</div>
+                </div>
+            </div>
+
+            <p class="site-footer-dev">
+                Website được thiết kế, phát triển và cập nhật giá liên tục bởi <strong>NGUYỄN CÔNG NGUYÊN</strong>.
+            </p>
+
+            <div class="site-footer-contact">
+                <a href="tel:0344979307" class="footer-contact-pill" title="Gọi Hotline">
+                    <span>📞</span> Hotline: <strong>0344 979 307</strong>
+                </a>
+                <span class="footer-divider">|</span>
+                <a href="https://zalo.me/0934811307" target="_blank" rel="noopener noreferrer" class="footer-contact-pill" title="Nhắn tin Zalo">
+                    <span>💬</span> Zalo: <strong>0934 811 307</strong>
+                </a>
+            </div>
+
+            <div class="site-footer-copyright">
+                © 2026 <strong>NGUYỄN CÔNG NGUYÊN</strong>. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal modal-wide" id="product-modal">
+            <button class="modal-close" onclick="closeDetailModal()">✕</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- IMAGE LIGHTBOX -->
+    <div id="lightbox-overlay" class="modal-overlay" onclick="closeLightbox()" style="z-index:500;background:rgba(0,0,0,.88)">
+        <img id="lightbox-img" src="" alt="" style="max-width:92vw;max-height:90vh;object-fit:contain;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.5);background:#fff;padding:12px">
+    </div>
+
+    <!-- QUOTE MODAL -->
+    <div id="quote-modal-overlay" class="modal-overlay" onclick="closeQuoteModal(event)">
+        <div class="modal modal-wide" id="quote-modal">
+            <button class="modal-close" onclick="closeQuoteModal()">✕</button>
+            <div id="quote-content"></div>
+        </div>
+    </div>
+
+    <!-- COMPARE MODAL -->
+    <div id="compare-modal-overlay" class="modal-overlay" onclick="closeCompareModal(event)">
+        <div class="modal modal-wide" id="compare-modal">
+            <button class="modal-close" onclick="closeCompareModal()">✕</button>
+            <div id="compare-content"></div>
+        </div>
+    </div>
+
+    <!-- FAVORITES MODAL -->
+    <div id="fav-modal-overlay" class="modal-overlay" onclick="closeFavModal(event)">
+        <div class="modal modal-wide" id="fav-modal">
+            <button class="modal-close" onclick="closeFavModal()">✕</button>
+            <div id="fav-content"></div>
+        </div>
+    </div>
+
+    <!-- TOAST Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- FLOATING COMPARE DOCK (Chỉ xuất hiện khi có sản phẩm được chọn so sánh, không chiếm menu) -->
+    <div id="floating-compare-dock" class="floating-compare-dock" style="display:none">
+        <div class="compare-dock-inner">
+            <div class="compare-dock-info">
+                <span class="compare-dock-icon">⚖️</span>
+                <span class="compare-dock-text">So sánh (<strong id="compare-dock-count">0</strong>/4 sản phẩm)</span>
+            </div>
+            <div class="compare-dock-actions">
+                <button class="btn btn-sm btn-primary" onclick="showCompare()">Xem so sánh ▸</button>
+                <button class="btn btn-sm btn-outline compare-dock-close" onclick="clearCompareList()" title="Xóa danh sách so sánh">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING ACTION BUTTON -->
+    <button class="fab" id="fab-scroll-top" onclick="scrollToTop()" title="Lên đầu trang" style="display:none">↑</button>
+
+    <script src="js/app.js"></script>
+    <script src="js/app-v4.js"></script>
+</body>
+</html>

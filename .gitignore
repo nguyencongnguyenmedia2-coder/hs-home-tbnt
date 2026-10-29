@@ -1,0 +1,21 @@
+# Compiled executables and build artifacts (Large binaries > 100MB)
+*.exe
+build/
+dist/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large binary Excel database (> 100MB rejected by GitHub limits)
+*.xlsx
+*.xls
+app/data/backups/
+
+# PDF source files (optional, if large)
+# *.pdf
+
+# System & temporary logs
+*.log
+.DS_Store
+Thumbs.db
+ehthumbs.db
