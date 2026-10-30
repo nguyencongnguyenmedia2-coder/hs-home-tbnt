@@ -966,88 +966,607 @@ function renderKnowledgeTab() {
     `;
 }
 
-// ======================== TAB 6: STORE DIRECTORY (DSCH) ========================
-function renderStoresTab(filterText = '') {
+// ======================== TAB 6: STORE DIRECTORY (DSCH) REDESIGN ========================
+const STORE_PROV_ICONS = {
+    'Đắk Lắk': '☕',
+    'Gia Lai': '🌲',
+    'Quảng Ngãi': '🌊',
+    'Khánh Hòa': '🏖️',
+    'Đà Nẵng': '🌉',
+    'Quảng Trị': '🕊️',
+    'Huế': '🏛️'
+};
+
+const STORE_MODEL_LABELS = {
+    'TT': 'Siêu Thị TT (Trung Tâm)',
+    '1A': 'Cửa Hàng 1A (Tiêu Chuẩn Lớn)',
+    '2A': 'Cửa Hàng 2A (Tiêu Chuẩn)',
+    '3A': 'Cửa Hàng 3A (Tiêu Chuẩn)',
+    '2B': 'Cửa Hàng Vệ Tinh 2B',
+    '3B': 'Cửa Hàng Vệ Tinh 3B'
+};
+
+let storeState = {
+    search: '',
+    province: 'all',
+    model: 'all',
+    view: localStorage.getItem('hsh_store_view') || 'cards',
+    page: 1,
+    pageSize: 24
+};
+
+function renderStoresTab() {
     if (!extrasData) return;
     const stores = extrasData.danh_sach_cua_hang || [];
-    const q = filterText.trim().toLowerCase();
-    const filtered = q
-        ? stores.filter(s =>
-            s.tinh_moi.toLowerCase().includes(q) ||
-            s.ma_ch.toLowerCase().includes(q) ||
-            s.ten_ch.toLowerCase().includes(q) ||
-            (s.tinh_cu && s.tinh_cu.toLowerCase().includes(q)) ||
-            (s.ma_ch_cu && s.ma_ch_cu.toLowerCase().includes(q)) ||
-            (s.ten_ch_cu && s.ten_ch_cu.toLowerCase().includes(q))
-          )
-        : stores;
-
-    const rows = filtered.map((s, i) => `<tr>
-        <td>${i+1}</td>
-        <td><strong>${escHtml(s.tinh_moi)}</strong></td>
-        <td><code style="color:var(--primary);font-weight:800">${escHtml(s.ma_ch)}</code></td>
-        <td><strong>${escHtml(s.ten_ch)}</strong></td>
-        <td><span class="chip">${escHtml(s.mo_hinh)}</span></td>
-        <td style="color:var(--text-secondary)">${escHtml(s.tinh_cu)}</td>
-        <td><code>${escHtml(s.ma_ch_cu)}</code></td>
-        <td style="color:var(--text-secondary)">${escHtml(s.ten_ch_cu)}</td>
-    </tr>`).join('');
-
     const container = document.getElementById('stores-container');
-    if (!document.getElementById('store-search-inp')) {
-        container.innerHTML = `
-            <div class="hb-card">
-                <div class="hb-card-title">
-                    <span>🏪 Danh Sách Cửa Hàng Hoa Sen Home &amp; Chuyển Đổi Mã Cũ/Mới (Sheet: DSCH — ${stores.length} CH)</span>
+    if (!container) return;
+
+    // Tính toán số liệu thống kê nhanh
+    const totalStores = stores.length;
+    const provCounts = {};
+    const modelCounts = {};
+    stores.forEach(s => {
+        if (s.tinh_moi) provCounts[s.tinh_moi] = (provCounts[s.tinh_moi] || 0) + 1;
+        if (s.mo_hinh) modelCounts[s.mo_hinh] = (modelCounts[s.mo_hinh] || 0) + 1;
+    });
+
+    const uniqueProvinces = Object.keys(provCounts).sort((a, b) => provCounts[b] - provCounts[a]);
+    const ttCount = modelCounts['TT'] || 0;
+    const satelliteCount = totalStores - ttCount;
+
+    container.innerHTML = `
+        <div class="stores-view-wrap">
+            <!-- 1. HERO BANNER & KPI COUNTERS -->
+            <div class="stores-hero">
+                <div class="stores-hero-content">
+                    <div class="stores-hero-badge">
+                        <span>🪷 HỆ THỐNG PHÂN PHỐI VẬT LIỆU &amp; THIẾT BỊ MIỀN TRUNG</span>
+                    </div>
+                    <h2 class="stores-hero-title">MẠNG LƯỚI 112 CỬA HÀNG &amp; SIÊU THỊ HOA SEN HOME</h2>
+                    <p class="stores-hero-sub">
+                        Tra cứu địa chỉ, đối chiếu mã cửa hàng mới &amp; mã cũ phục vụ xuất bán, lên đơn thầu thợ, 
+                        điều phối hàng hóa giữa 7 tỉnh thành Miền Trung và 3 Tổng kho vùng.
+                    </p>
+
+                    <!-- KPI Stats Grid -->
+                    <div class="stores-kpi-grid">
+                        <div class="stores-kpi-card">
+                            <span class="stores-kpi-icon">🏪</span>
+                            <div class="stores-kpi-info">
+                                <span class="stores-kpi-val">${totalStores}</span>
+                                <span class="stores-kpi-lbl">Cửa Hàng &amp; Siêu Thị</span>
+                            </div>
+                        </div>
+                        <div class="stores-kpi-card">
+                            <span class="stores-kpi-icon">🏙️</span>
+                            <div class="stores-kpi-info">
+                                <span class="stores-kpi-val">${uniqueProvinces.length}</span>
+                                <span class="stores-kpi-lbl">Tỉnh Thành Phụ Trách</span>
+                            </div>
+                        </div>
+                        <div class="stores-kpi-card">
+                            <span class="stores-kpi-icon">🏬</span>
+                            <div class="stores-kpi-info">
+                                <span class="stores-kpi-val">${ttCount}</span>
+                                <span class="stores-kpi-lbl">Trung Tâm Siêu Thị (TT)</span>
+                            </div>
+                        </div>
+                        <div class="stores-kpi-card">
+                            <span class="stores-kpi-icon">🏢</span>
+                            <div class="stores-kpi-info">
+                                <span class="stores-kpi-val">${satelliteCount}</span>
+                                <span class="stores-kpi-lbl">Chi Nhánh 1A - 3B</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="margin-bottom:14px;max-width:460px">
-                    <input id="store-search-inp" type="text" placeholder="🔍 Tìm tỉnh, mã cửa hàng mới/cũ, tên cửa hàng (VD: Khánh Hòa, KHH.07, L56...)"
-                        style="width:100%;padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font);font-size:13.5px"
-                        oninput="renderStoresTableBody(this.value)">
-                </div>
-                <div style="overflow-x:auto" id="stores-table-wrap"></div>
             </div>
-        `;
-    }
-    renderStoresTableBody(filterText);
+
+            <!-- 2. QUICK PROVINCE SELECTOR BAR -->
+            <div class="stores-province-bar" id="stores-province-bar">
+                <button class="store-province-pill ${storeState.province === 'all' ? 'active' : ''}" 
+                        onclick="setStoreProvince('all')">
+                    <span>🌟 Tất Cả Tỉnh</span>
+                    <span class="store-province-count">${totalStores}</span>
+                </button>
+                ${uniqueProvinces.map(p => `
+                    <button class="store-province-pill ${storeState.province === p ? 'active' : ''}" 
+                            onclick="setStoreProvince('${escJs(p)}')">
+                        <span>${STORE_PROV_ICONS[p] || '📍'} ${escHtml(p)}</span>
+                        <span class="store-province-count">${provCounts[p]}</span>
+                    </button>
+                `).join('')}
+            </div>
+
+            <!-- 3. SMART TOOLBAR & CONTROLS -->
+            <div class="stores-toolbar">
+                <div class="stores-toolbar-left">
+                    <div class="stores-search-wrap">
+                        <span class="stores-search-icon">🔍</span>
+                        <input type="text" class="stores-search-input" id="store-search-inp" 
+                               placeholder="Tìm tên CH, mã mới (KHH.07), mã cũ (L56), tỉnh..." 
+                               value="${escHtml(storeState.search)}"
+                               oninput="setStoreSearch(this.value)">
+                        ${storeState.search ? `
+                            <button class="stores-search-clear" onclick="clearStoreSearch()" title="Xóa tìm kiếm">✕</button>
+                        ` : ''}
+                    </div>
+
+                    <select class="stores-select" id="store-model-filter" onchange="setStoreModel(this.value)">
+                        <option value="all" ${storeState.model === 'all' ? 'selected' : ''}>🏬 Tất cả mô hình (${totalStores})</option>
+                        <option value="TT" ${storeState.model === 'TT' ? 'selected' : ''}>⭐ Mô hình TT - Siêu thị lớn (${ttCount})</option>
+                        <option value="1A_2A" ${storeState.model === '1A_2A' ? 'selected' : ''}>🏢 Mô hình 1A &amp; 2A (Tiêu chuẩn)</option>
+                        <option value="3A_2B_3B" ${storeState.model === '3A_2B_3B' ? 'selected' : ''}>🏠 Mô hình 3A, 2B, 3B (Vệ tinh)</option>
+                    </select>
+                </div>
+
+                <div class="stores-toolbar-right">
+                    <!-- View Mode Toggle -->
+                    <div class="stores-view-toggle">
+                        <button class="stores-view-btn ${storeState.view === 'cards' ? 'active' : ''}" 
+                                onclick="setStoreView('cards')" title="Xem dạng thẻ trực quan">
+                            <span>🎴 Thẻ Card</span>
+                        </button>
+                        <button class="stores-view-btn ${storeState.view === 'table' ? 'active' : ''}" 
+                                onclick="setStoreView('table')" title="Xem dạng bảng đối chiếu">
+                            <span>📋 Bảng Table</span>
+                        </button>
+                    </div>
+
+                    <!-- Action Utility Buttons -->
+                    <button class="stores-action-btn" onclick="copyAllStoresText()" title="Sao chép toàn bộ danh sách đang hiển thị">
+                        <span>📋 Sao chép</span>
+                    </button>
+                    <button class="stores-action-btn" onclick="exportStoresCSV()" title="Tải file Excel / CSV chuẩn UTF-8">
+                        <span>📥 Xuất Excel</span>
+                    </button>
+                    <button class="stores-action-btn" onclick="resetStoreFilters()" title="Đặt lại bộ lọc về mặc định">
+                        <span>🔄 Đặt lại</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. DYNAMIC RESULTS CONTAINER -->
+            <div id="stores-dynamic-content"></div>
+        </div>
+    `;
+
+    renderStoresContent();
 }
 
-function renderStoresTableBody(filterText = '') {
-    const stores = extrasData?.danh_sach_cua_hang || [];
-    const q = filterText.trim().toLowerCase();
-    const filtered = q
-        ? stores.filter(s =>
-            s.tinh_moi.toLowerCase().includes(q) ||
-            s.ma_ch.toLowerCase().includes(q) ||
-            s.ten_ch.toLowerCase().includes(q) ||
-            (s.tinh_cu && s.tinh_cu.toLowerCase().includes(q)) ||
-            (s.ma_ch_cu && s.ma_ch_cu.toLowerCase().includes(q)) ||
-            (s.ten_ch_cu && s.ten_ch_cu.toLowerCase().includes(q))
-          )
-        : stores;
+function getFilteredStores() {
+    if (!extrasData) return [];
+    const stores = extrasData.danh_sach_cua_hang || [];
+    const q = storeState.search.trim().toLowerCase();
+    const prov = storeState.province;
+    const model = storeState.model;
 
-    document.getElementById('stores-table-wrap').innerHTML = `
-        <table class="hb-table">
-            <thead>
-                <tr>
-                    <th>#</th><th>Tỉnh Mới</th><th>Mã CH Mới</th><th>Tên Cửa Hàng Mới</th><th>Mô Hình</th>
-                    <th>Tỉnh Cũ</th><th>Mã CH Cũ</th><th>Tên Cửa Hàng Cũ</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${filtered.map((s, i) => `<tr>
-                    <td>${i+1}</td>
-                    <td><strong>${escHtml(s.tinh_moi)}</strong></td>
-                    <td><code style="color:var(--primary);font-weight:800">${escHtml(s.ma_ch)}</code></td>
-                    <td><strong>${escHtml(s.ten_ch)}</strong></td>
-                    <td><span class="chip">${escHtml(s.mo_hinh)}</span></td>
-                    <td style="color:var(--text-secondary)">${escHtml(s.tinh_cu)}</td>
-                    <td><code>${escHtml(s.ma_ch_cu)}</code></td>
-                    <td style="color:var(--text-secondary)">${escHtml(s.ten_ch_cu)}</td>
-                </tr>`).join('')}
-            </tbody>
-        </table>
+    return stores.filter(s => {
+        // Lọc theo Tỉnh
+        if (prov !== 'all' && s.tinh_moi !== prov) return false;
+
+        // Lọc theo Mô hình
+        if (model !== 'all') {
+            if (model === 'TT' && s.mo_hinh !== 'TT') return false;
+            if (model === '1A_2A' && s.mo_hinh !== '1A' && s.mo_hinh !== '2A') return false;
+            if (model === '3A_2B_3B' && s.mo_hinh !== '3A' && s.mo_hinh !== '2B' && s.mo_hinh !== '3B') return false;
+        }
+
+        // Lọc theo Từ khóa tìm kiếm
+        if (q) {
+            const matchNewProv = (s.tinh_moi || '').toLowerCase().includes(q);
+            const matchNewCode = (s.ma_ch || '').toLowerCase().includes(q);
+            const matchNewName = (s.ten_ch || '').toLowerCase().includes(q);
+            const matchOldProv = (s.tinh_cu || '').toLowerCase().includes(q);
+            const matchOldCode = (s.ma_ch_cu || '').toLowerCase().includes(q);
+            const matchOldName = (s.ten_ch_cu || '').toLowerCase().includes(q);
+            const matchModel   = (s.mo_hinh || '').toLowerCase().includes(q);
+            if (!matchNewProv && !matchNewCode && !matchNewName && !matchOldProv && !matchOldCode && !matchOldName && !matchModel) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+}
+
+function renderStoresContent() {
+    const contentBox = document.getElementById('stores-dynamic-content');
+    if (!contentBox) return;
+
+    const filtered = getFilteredStores();
+    const total = filtered.length;
+
+    if (total === 0) {
+        contentBox.innerHTML = `
+            <div class="store-empty">
+                <span class="store-empty-icon">🔍</span>
+                <h3 class="store-empty-title">Không tìm thấy cửa hàng phù hợp</h3>
+                <p class="store-empty-sub">
+                    Không có cửa hàng nào khớp với từ khóa <strong>"${escHtml(storeState.search)}"</strong> 
+                    hoặc bộ lọc hiện tại. Vui lòng thử tìm từ khóa khác hoặc bấm đặt lại bộ lọc.
+                </p>
+                <button class="btn btn-primary btn-sm" onclick="resetStoreFilters()" style="margin-top:6px">
+                    🔄 Đặt lại toàn bộ bộ lọc
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    // Pagination calculations
+    const pageSize = storeState.view === 'cards' ? 24 : 30;
+    const totalPages = Math.ceil(total / pageSize);
+    if (storeState.page > totalPages) storeState.page = 1;
+
+    const startIdx = (storeState.page - 1) * pageSize;
+    const pagedItems = filtered.slice(startIdx, startIdx + pageSize);
+
+    // Summary header line
+    const provLabel = storeState.province === 'all' ? 'Tất cả 7 tỉnh Miền Trung' : `Tỉnh ${storeState.province}`;
+    const summaryHtml = `
+        <div class="stores-results-summary" style="margin-bottom:12px">
+            <span class="stores-results-count">
+                Đang hiển thị <strong>${startIdx + 1} - ${Math.min(startIdx + pageSize, total)}</strong> trên tổng số <strong>${total}</strong> cửa hàng (${provLabel})
+            </span>
+            <span style="font-size:12.5px;color:var(--text-muted)">
+                Trang ${storeState.page} / ${totalPages}
+            </span>
+        </div>
     `;
+
+    if (storeState.view === 'cards') {
+        // CARD GRID VIEW
+        const cardsHtml = pagedItems.map((s, idx) => {
+            const icon = STORE_PROV_ICONS[s.tinh_moi] || '🏪';
+            const isTT = s.mo_hinh === 'TT';
+            const modelLabel = STORE_MODEL_LABELS[s.mo_hinh] || `Mô hình ${s.mo_hinh}`;
+
+            return `
+                <div class="store-card" id="store-card-${s.ma_ch}">
+                    <div class="store-card-header">
+                        <div class="store-card-brand-box">
+                            <div class="store-card-icon-emblem">${icon}</div>
+                            <div class="store-card-title-group">
+                                <h3 class="store-card-name">Hoa Sen Home ${escHtml(s.ten_ch)}</h3>
+                                <div class="store-card-prov">
+                                    <span>📍</span> <strong>${escHtml(s.tinh_moi)}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="store-card-badges">
+                        <span class="store-badge-code" title="Mã cửa hàng mới dùng trong hệ thống 2026">
+                            📌 <strong>${escHtml(s.ma_ch)}</strong>
+                        </span>
+                        <span class="store-badge-model ${isTT ? 'model-tt' : ''}" title="${modelLabel}">
+                            ${isTT ? '⭐' : '🏢'} ${escHtml(s.mo_hinh)} ${isTT ? '(Siêu Thị)' : ''}
+                        </span>
+                    </div>
+
+                    <!-- Code Conversion Box (Mã cũ / Mã mới) -->
+                    <div class="store-convert-box">
+                        <div class="store-convert-header">
+                            <span>🔄 Chuyển đổi mã cũ &amp; đối chiếu</span>
+                            <span style="color:var(--text-primary);font-weight:700">SAP / DSCH</span>
+                        </div>
+                        <div class="store-convert-content">
+                            <div class="store-convert-row">
+                                <span class="store-convert-key">Mã CH cũ:</span>
+                                <span class="store-convert-val">
+                                    <code>${escHtml(s.ma_ch_cu || '—')}</code>
+                                </span>
+                            </div>
+                            <div class="store-convert-row">
+                                <span class="store-convert-key">Tỉnh trước gộp:</span>
+                                <span class="store-convert-val">${escHtml(s.tinh_cu || '—')}</span>
+                            </div>
+                            <div class="store-convert-row full">
+                                <span class="store-convert-key">Tên cửa hàng cũ:</span>
+                                <span class="store-convert-val">${escHtml(s.ten_ch_cu || s.ten_ch)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div class="store-card-actions">
+                        <button class="store-btn-action" onclick="copyStoreInfo('${escJs(s.ma_ch)}')" title="Sao chép thông tin chi nhánh gửi Zalo">
+                            <span>📋 Copy Zalo</span>
+                        </button>
+                        <button class="store-btn-action primary" onclick="jumpToStoreInventory('${escJs(s.tinh_moi)}')" title="Xem bảng giá và tồn kho khu vực ${escJs(s.tinh_moi)}">
+                            <span>📊 Xem Bảng Giá</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        contentBox.innerHTML = `
+            ${summaryHtml}
+            <div class="stores-grid">
+                ${cardsHtml}
+            </div>
+            ${renderStoresPagination(total, pageSize, storeState.page)}
+        `;
+    } else {
+        // TABLE VIEW
+        const rowsHtml = pagedItems.map((s, idx) => {
+            const rowNum = startIdx + idx + 1;
+            const isTT = s.mo_hinh === 'TT';
+            const icon = STORE_PROV_ICONS[s.tinh_moi] || '📍';
+
+            return `
+                <tr>
+                    <td style="color:var(--text-muted);font-weight:700;width:45px;text-align:center">${rowNum}</td>
+                    <td>
+                        <span style="font-weight:700;display:inline-flex;align-items:center;gap:5px">
+                            ${icon} ${escHtml(s.tinh_moi)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="store-badge-code">
+                            ${escHtml(s.ma_ch)}
+                        </span>
+                    </td>
+                    <td>
+                        <strong style="color:var(--text-primary);font-size:13.5px">
+                            Hoa Sen Home ${escHtml(s.ten_ch)}
+                        </strong>
+                    </td>
+                    <td>
+                        <span class="store-badge-model ${isTT ? 'model-tt' : ''}">
+                            ${escHtml(s.mo_hinh)}
+                        </span>
+                    </td>
+                    <td>
+                        <code>${escHtml(s.ma_ch_cu || '—')}</code>
+                    </td>
+                    <td style="color:var(--text-secondary)">
+                        ${escHtml(s.ten_ch_cu || '—')}
+                    </td>
+                    <td style="color:var(--text-secondary)">
+                        ${escHtml(s.tinh_cu || '—')}
+                    </td>
+                    <td style="text-align:center">
+                        <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px" 
+                                onclick="copyStoreInfo('${escJs(s.ma_ch)}')" title="Copy thông tin cửa hàng">
+                            📋 Copy
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        contentBox.innerHTML = `
+            ${summaryHtml}
+            <div class="stores-table-wrap">
+                <div class="store-table-container">
+                    <table class="store-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center">#</th>
+                                <th>Tỉnh Mới</th>
+                                <th>Mã CH Mới</th>
+                                <th>Tên Cửa Hàng Mới</th>
+                                <th>Mô Hình</th>
+                                <th>Mã CH Cũ</th>
+                                <th>Tên Cửa Hàng Cũ</th>
+                                <th>Tỉnh Cũ</th>
+                                <th style="text-align:center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            ${renderStoresPagination(total, pageSize, storeState.page)}
+        `;
+    }
+}
+
+function renderStoresPagination(totalItems, pageSize, curPage) {
+    const totalPages = Math.ceil(totalItems / pageSize);
+    if (totalPages <= 1) return '';
+
+    const range = buildPageRange(curPage, totalPages);
+    let html = `<div class="stores-pagination">`;
+    html += `<button class="page-btn" onclick="setStorePage(${curPage - 1})" ${curPage === 1 ? 'disabled' : ''}>◀ Trước</button>`;
+
+    range.forEach(p => {
+        if (p === '…') {
+            html += `<span style="padding:0 6px;color:var(--text-muted)">…</span>`;
+        } else {
+            html += `<button class="page-btn ${p === curPage ? 'active' : ''}" onclick="setStorePage(${p})">${p}</button>`;
+        }
+    });
+
+    html += `<button class="page-btn" onclick="setStorePage(${curPage + 1})" ${curPage === totalPages ? 'disabled' : ''}>Sau ▶</button>`;
+    html += `</div>`;
+    return html;
+}
+
+function setStoreProvince(prov) {
+    storeState.province = prov;
+    storeState.page = 1;
+
+    // Cập nhật active class cho pill
+    document.querySelectorAll('.store-province-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(prov === 'all' ? 'Tất Cả Tỉnh' : prov));
+    });
+
+    renderStoresContent();
+}
+
+function setStoreModel(model) {
+    storeState.model = model;
+    storeState.page = 1;
+    renderStoresContent();
+}
+
+function setStoreSearch(q) {
+    storeState.search = q;
+    storeState.page = 1;
+
+    // Cập nhật nút xóa search
+    const clearBtn = document.querySelector('.stores-search-clear');
+    if (q && !clearBtn) {
+        const wrap = document.querySelector('.stores-search-wrap');
+        if (wrap) {
+            const btn = document.createElement('button');
+            btn.className = 'stores-search-clear';
+            btn.title = 'Xóa tìm kiếm';
+            btn.textContent = '✕';
+            btn.onclick = clearStoreSearch;
+            wrap.appendChild(btn);
+        }
+    } else if (!q && clearBtn) {
+        clearBtn.remove();
+    }
+
+    renderStoresContent();
+}
+
+function clearStoreSearch() {
+    const inp = document.getElementById('store-search-inp');
+    if (inp) inp.value = '';
+    setStoreSearch('');
+}
+
+function setStoreView(viewMode) {
+    storeState.view = viewMode;
+    storeState.page = 1;
+    localStorage.setItem('hsh_store_view', viewMode);
+
+    document.querySelectorAll('.stores-view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(viewMode === 'cards' ? 'Thẻ Card' : 'Bảng Table'));
+    });
+
+    renderStoresContent();
+}
+
+function setStorePage(page) {
+    storeState.page = page;
+    renderStoresContent();
+    const toolbar = document.querySelector('.stores-toolbar');
+    if (toolbar) toolbar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function resetStoreFilters() {
+    storeState.search = '';
+    storeState.province = 'all';
+    storeState.model = 'all';
+    storeState.page = 1;
+
+    const inp = document.getElementById('store-search-inp');
+    if (inp) inp.value = '';
+
+    const sel = document.getElementById('store-model-filter');
+    if (sel) sel.value = 'all';
+
+    document.querySelectorAll('.store-province-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes('Tất Cả Tỉnh'));
+    });
+
+    const clearBtn = document.querySelector('.stores-search-clear');
+    if (clearBtn) clearBtn.remove();
+
+    renderStoresContent();
+    showToast('🔄 Đã đặt lại toàn bộ bộ lọc cửa hàng', 'info');
+}
+
+function copyStoreInfo(maCh) {
+    if (!extrasData) return;
+    const stores = extrasData.danh_sach_cua_hang || [];
+    const s = stores.find(x => x.ma_ch === maCh);
+    if (!s) return;
+
+    const icon = STORE_PROV_ICONS[s.tinh_moi] || '🏪';
+    const isTT = s.mo_hinh === 'TT';
+    const modelText = isTT ? 'Siêu Thị TT (Trung Tâm)' : `Chi Nhánh ${s.mo_hinh}`;
+
+    let txt = `🏪 HOA SEN HOME — ${s.ten_ch.toUpperCase()}\n`;
+    txt += `📌 Mã CH mới: ${s.ma_ch} | Mô hình: ${modelText}\n`;
+    txt += `📍 Khu vực / Tỉnh: ${s.tinh_moi}\n`;
+    if (s.ma_ch_cu || s.ten_ch_cu) {
+        txt += `🔄 Đối chiếu mã cũ: Mã ${s.ma_ch_cu || '—'} | Tên cũ: ${s.ten_ch_cu || s.ten_ch} (${s.tinh_cu || '—'})\n`;
+    }
+    txt += `📞 Hotline điều phối Miền Trung: 0344 979 307 | Zalo: 0934 811 307\n`;
+    txt += `🌐 Tra cứu trực tuyến: ${window.location.origin}/?tab=stores`;
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(txt).then(() => {
+            showToast(`✅ Đã sao chép thông tin CH ${s.ten_ch}!`, 'success');
+        });
+    } else {
+        showToast('⚠️ Không thể tự động copy trên trình duyệt này', 'warning');
+    }
+}
+
+function copyAllStoresText() {
+    const filtered = getFilteredStores();
+    if (!filtered.length) {
+        showToast('Không có dữ liệu để sao chép', 'warning');
+        return;
+    }
+
+    let txt = `📋 HOA SEN HOME — DANH SÁCH ${filtered.length} CỬA HÀNG & SIÊU THỊ MIỀN TRUNG\n`;
+    txt += `------------------------------------------------------------\n`;
+    filtered.forEach((s, i) => {
+        txt += `${i + 1}. [${s.ma_ch}] Hoa Sen Home ${s.ten_ch} (${s.tinh_moi}) - Mô hình: ${s.mo_hinh}`;
+        if (s.ma_ch_cu) txt += ` [Mã cũ: ${s.ma_ch_cu} - ${s.ten_ch_cu || ''}]`;
+        txt += `\n`;
+    });
+    txt += `------------------------------------------------------------\n`;
+    txt += `Tổng cộng: ${filtered.length} cửa hàng | Cập nhật 2026 bởi NGUYỄN CÔNG NGUYÊN\n`;
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(txt).then(() => {
+            showToast(`📋 Đã sao chép danh sách ${filtered.length} cửa hàng vào bộ nhớ tạm!`, 'success');
+        });
+    } else {
+        showToast('⚠️ Không thể tự động sao chép', 'warning');
+    }
+}
+
+function exportStoresCSV() {
+    const filtered = getFilteredStores();
+    if (!filtered.length) {
+        showToast('Không có dữ liệu để xuất file', 'warning');
+        return;
+    }
+
+    const headers = ['STT', 'Tỉnh Mới', 'Mã CH Mới', 'Tên Cửa Hàng Mới', 'Mô Hình', 'Tỉnh Cũ', 'Mã CH Cũ', 'Tên Cửa Hàng Cũ'];
+    const rows = filtered.map((s, i) => [
+        i + 1,
+        `"${(s.tinh_moi || '').replace(/"/g, '""')}"`,
+        `"${(s.ma_ch || '').replace(/"/g, '""')}"`,
+        `"${(s.ten_ch || '').replace(/"/g, '""')}"`,
+        `"${(s.mo_hinh || '').replace(/"/g, '""')}"`,
+        `"${(s.tinh_cu || '').replace(/"/g, '""')}"`,
+        `"${(s.ma_ch_cu || '').replace(/"/g, '""')}"`,
+        `"${(s.ten_ch_cu || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `HoaSenHome_DSCH_MienTrung_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast(`📥 Đã xuất file Excel/CSV thành công (${filtered.length} cửa hàng)!`, 'success');
+}
+
+function jumpToStoreInventory(tinhMoi) {
+    switchTab('pricelist');
+    showToast(`📊 Đang chuyển đến Bảng Giá & Tồn Kho (Khu vực: ${tinhMoi})`, 'info');
 }
 
 // ======================== PAGINATION HELPER ========================
