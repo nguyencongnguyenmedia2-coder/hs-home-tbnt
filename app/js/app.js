@@ -1601,166 +1601,487 @@ function goPage(p) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ======================== DETAIL MODAL ========================
+// ======================== DETAIL MODAL (REDESIGNED V2) ========================
+let currentDetailProduct = null;
+let currentDetailTier = 'gia_ban_le';
+
+const DETAIL_TIER_OPTIONS = [
+    { key: 'gia_ban_le',   label: 'Khách lẻ',   badge: 'VAT' },
+    { key: 'gia_thau_tho',  label: 'Thầu thợ',   badge: '-10%' },
+    { key: 'dai_ly_c1',     label: 'Đại lý C1',  badge: '-20%' },
+    { key: 'npp_c1',        label: 'NPP C1',     badge: '-22%' },
+    { key: 'npp_c3',        label: 'NPP C3',     badge: '-25%' },
+    { key: 'gia_nhan_vien', label: 'NV HSH',     badge: 'BCL' }
+];
+
 function openDetail(id) {
     const p = allProducts.find(x => x.id === id);
     if (!p) return;
 
+    currentDetailProduct = p;
+    currentDetailTier = selectedPriceType && p[selectedPriceType] > 0 ? selectedPriceType : 'gia_ban_le';
+
     const isFav = favorites.includes(p.ma_sp);
     const isCmp = compareList.includes(p.ma_sp);
+    const tongTon = getStockTotal(p);
+    const brandIcon = BRAND_ICONS[p.thuong_hieu] || '🛁';
 
-    // 1. Build current price rows
+    // 1. Phân loại 17 kho thành 3 cụm chuẩn
+    const MT_BRANCHES = ['Đắk Lắk', 'Gia Lai', 'Khánh Hòa', 'Quảng Ngãi', 'Đà Nẵng', 'Huế', 'Quảng Trị'];
+    const MT_HUBS = ['TK Đà Nẵng', 'NM Nhơn Hòa', 'TK Đăk Lắk'];
+    const SATELLITE_PLANTS = ['NM Bình Dương', 'TK Cần Thơ', 'NM Nghệ An', 'NM Hà Nam'];
+
+    const getGroupTotal = (keys) => {
+        if (!p.ton_kho) return 0;
+        return keys.reduce((sum, k) => sum + (p.ton_kho[k] || 0), 0);
+    };
+
+    const totalBranches = getGroupTotal(MT_BRANCHES);
+    const totalHubs = getGroupTotal(MT_HUBS);
+    const totalPlants = getGroupTotal(SATELLITE_PLANTS);
+
+    const renderStockNodes = (keys) => {
+        return keys.map(k => {
+            const qty = p.ton_kho ? (p.ton_kho[k] || 0) : 0;
+            const cls = qty > 10 ? 'has-stock' : qty > 0 ? 'low-stock' : 'no-stock';
+            return `
+                <div class="detail-stock-node ${cls}">
+                    <span class="detail-stock-node-name" title="${escHtml(k)}">${escHtml(k)}</span>
+                    <span class="detail-stock-node-qty">${qty > 0 ? qty.toLocaleString('vi-VN') : '—'}</span>
+                </div>
+            `;
+        }).join('');
+    };
+
+    // 2. Bảng giá chi tiết đa cấp
     const priceRows = Object.entries(PRICE_LABELS)
         .filter(([k]) => p[k] > 0)
         .map(([k, label]) => {
-            const hi = k === selectedPriceType || k === 'gia_ban_le';
+            const isSelected = k === currentDetailTier;
             const pct = (p.gia_niem_yet > 0 && p[k] < p.gia_niem_yet)
                 ? `(-${Math.round((1 - p[k] / p.gia_niem_yet) * 100)}%)`
                 : '';
-            return `<tr class="${hi?'price-row-primary':''}">
-                <td>${label}</td>
-                <td class="${hi?'price-highlight':''}">${formatPrice(p[k])}</td>
-                <td style="color:var(--success);font-weight:600;font-size:11.5px">${pct}</td>
-            </tr>`;
+            return `
+                <tr class="${isSelected ? 'price-row-primary' : ''}">
+                    <td><strong>${escHtml(label)}</strong></td>
+                    <td class="${isSelected ? 'price-highlight' : ''}" style="font-weight:800">${formatPrice(p[k])}</td>
+                    <td style="color:var(--success);font-weight:700">${pct || '—'}</td>
+                </tr>
+            `;
         }).join('');
 
-    // 2. Historical prices
+    // 3. Lịch sử giá kỳ trước
     const histEntries = Object.entries(p.lich_su_gia || {});
     const histHtml = histEntries.length ? `
-        <div class="modal-section">
+        <div style="margin-top:20px">
             <div class="sec-title">🕰️ Lịch Sử Giá Các Kỳ Trước (Sheet: DATA GIÁ)</div>
             <table class="spec-table">
-                ${histEntries.map(([k, v]) => `<tr><td style="width:240px">${escHtml(k)}</td><td>${formatPrice(v)}</td></tr>`).join('')}
+                <thead><tr><th>Thời điểm áp dụng</th><th>Đơn giá kỳ trước (Có VAT)</th></tr></thead>
+                <tbody>
+                    ${histEntries.map(([k, v]) => `<tr><td>${escHtml(k)}</td><td style="font-weight:700">${formatPrice(v)}</td></tr>`).join('')}
+                </tbody>
             </table>
         </div>` : '';
 
-    // 3. Stock breakdown
-    const mainKhos = p.ton_kho
-        ? Object.entries(p.ton_kho).filter(([k]) => !k.includes('Tổng'))
-        : [];
-    const stockHtml = mainKhos.map(([kho, qty]) => {
-        const cls = qty === 0 ? 's-out' : qty < 10 ? 's-low' : 's-in';
-        return `<div class="stock-item ${cls}">
-            <div class="stock-name">${escHtml(kho)}</div>
-            <div class="stock-qty">${qty.toLocaleString('vi-VN')}</div>
-        </div>`;
-    }).join('');
-
-    const tongTon = getStockTotal(p);
-
-    // 4. Image + Technical Drawing
-    const imgHtml = p.hinh_anh
-        ? `<img class="modal-img" id="detail-main-img" src="${escHtml(p.hinh_anh)}" alt="${escHtml(p.ten_sp)}" onclick="openLightbox(this.src)" title="Bấm để phóng to ảnh">
-           <div style="font-size:11px;color:var(--text-muted);margin-top:6px">🔍 Bấm vào ảnh để phóng to</div>
-           ${p.hinh_ban_ve ? `<div style="display:flex;gap:6px;margin-top:8px">
-               <button class="btn btn-sm btn-outline" onclick="document.getElementById('detail-main-img').src='${escJs(p.hinh_anh)}'">📷 Ảnh SP</button>
-               <button class="btn btn-sm btn-outline" onclick="document.getElementById('detail-main-img').src='${escJs(p.hinh_ban_ve)}'">📐 Bản vẽ kỹ thuật</button>
-           </div>` : ''}`
-        : `<div class="modal-img-icon">${BRAND_ICONS[p.thuong_hieu] || '🛁'}</div>`;
-
-    // 5. Promo banners inside modal
+    // 4. Khuyến mãi & Xả kho
     let promoBannerHtml = '';
     if (p.xa_kho) {
-        promoBannerHtml += `<div class="suggest-box" style="margin-bottom:14px;border-left-color:#7C3AED;background:#F5F3FF;color:#4C1D95">
-            <strong>🏷️ SẢN PHẨM NẰM TRONG CTKM XẢ KHO 2026:</strong> ${escHtml(p.xa_kho.nhom_uu_dai)}<br>
-            • Giá NEW (0-60N): <strong>${formatPrice(p.xa_kho.gia_new_0_60)}</strong> | 60-90N: <strong>${formatPrice(p.xa_kho.gia_60_90)}</strong> | 90-180N: <strong>${formatPrice(p.xa_kho.gia_90_180)}</strong> | &gt;360N: <strong>${formatPrice(p.xa_kho.gia_tren_360)}</strong>
-        </div>`;
+        promoBannerHtml += `
+            <div class="suggest-box" style="margin-bottom:14px;border-left-color:#7C3AED;background:#F5F3FF;color:#4C1D95">
+                <div style="font-weight:800;font-size:13.5px;margin-bottom:4px">🏷️ CHƯƠNG TRÌNH XẢ KHO ĐẶC BIỆT 2026: ${escHtml(p.xa_kho.nhom_uu_dai || '')}</div>
+                <div style="font-size:12.5px;line-height:1.6">
+                    • Giá New (0-60N): <strong>${formatPrice(p.xa_kho.gia_new_0_60)}</strong> | 60-90N: <strong>${formatPrice(p.xa_kho.gia_60_90)}</strong> | 90-180N: <strong>${formatPrice(p.xa_kho.gia_90_180)}</strong> | &gt;360N: <strong>${formatPrice(p.xa_kho.gia_tren_360)}</strong>
+                </div>
+            </div>`;
     }
     if (p.ctkm_tuslo) {
-        promoBannerHtml += `<div class="suggest-box" style="margin-bottom:14px">
-            <strong>🎁 CTKM RA MẮT SẢN PHẨM MỚI TUSLO (${escHtml(p.ctkm_tuslo.ctkm)}):</strong><br>
-            • Quà tặng kèm: <strong>${escHtml(p.ctkm_tuslo.qua_tang)}</strong> (Tổng gói quà lên đến ${formatPrice(p.ctkm_tuslo.tong_qua_tang)})
-        </div>`;
+        promoBannerHtml += `
+            <div class="suggest-box" style="margin-bottom:14px">
+                <div style="font-weight:800;font-size:13.5px;margin-bottom:4px">🎁 CTKM RA MẮT SẢN PHẨM MỚI TUSLO: ${escHtml(p.ctkm_tuslo.ctkm || '')}</div>
+                <div style="font-size:12.5px;line-height:1.6">
+                    • Quà tặng kèm: <strong>${escHtml(p.ctkm_tuslo.qua_tang)}</strong> (Tổng gói quà tặng lên đến <strong>${formatPrice(p.ctkm_tuslo.tong_qua_tang)}</strong>)
+                </div>
+            </div>`;
     }
 
+    // 5. Hình ảnh chính & Bản vẽ
+    const hasImage = !!p.hinh_anh;
+    const hasDrawing = !!p.hinh_ban_ve;
+
     document.getElementById('modal-content').innerHTML = `
-    <div class="modal-product">
-        <div class="modal-top">
-            <div class="modal-img-box">${imgHtml}</div>
-            <div>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
-                    <span class="modal-brand-chip" style="margin-bottom:0">${BRAND_ICONS[p.thuong_hieu]||''} ${escHtml(p.thuong_hieu)}</span>
+        <div class="detail-modal-container">
+            <!-- 1. TOP HEADER BAR -->
+            <div class="detail-top-bar">
+                <div class="detail-breadcrumb">
+                    <span class="detail-brand-badge">${brandIcon} ${escHtml(p.thuong_hieu)}</span>
+                    ${p.nhom_sp ? `<span>/</span> <span style="color:var(--text-primary)">${escHtml(p.nhom_sp)}</span>` : ''}
+                </div>
+                <div class="detail-top-badges">
                     ${p.hang_ban_chay ? '<span class="badge-hot">🔥 HÀNG BÁN CHẠY</span>' : ''}
-                    ${p.uu_tien_online ? '<span class="badge-online">🌐 ƯU TIÊN ONLINE / TMĐT</span>' : ''}
-                    ${p.ngung_nhap ? '<span class="badge-discont">⛔ NGƯNG NHẬP HÀNG</span>' : ''}
+                    ${p.uu_tien_online ? '<span class="badge-online">🌐 ƯU TIÊN ONLINE</span>' : ''}
+                    ${p.ngung_nhap ? '<span class="badge-discont">⛔ NGỪNG NHẬP</span>' : ''}
+                    <span class="detail-chip" style="background:${tongTon > 0 ? '#DCFCE7' : '#F1F5F9'};color:${tongTon > 0 ? '#15803D' : '#64748B'};font-weight:800">
+                        ${tongTon > 0 ? `🟢 Còn ${tongTon.toLocaleString('vi-VN')} ${escHtml(p.dvt || 'SP')} tồn kho` : '⚪ Tạm hết hàng'}
+                    </span>
                 </div>
-                <div class="modal-title">${escHtml(p.ten_sp)}</div>
-                <div class="chips-row">
-                    <span class="chip">📌 Mã SP: <strong>${escHtml(p.ma_sp)}</strong></span>
-                    ${p.ma_item ? `<span class="chip">🔢 Mã Item: <strong>${escHtml(p.ma_item)}</strong></span>` : ''}
-                    ${p.dvt    ? `<span class="chip">📦 ĐVT: ${escHtml(p.dvt)}</span>`    : ''}
-                    ${p.nhom_sp ? `<span class="chip">🗂️ ${escHtml(p.nhom_sp)}</span>` : ''}
-                    ${p.thue > 0 ? `<span class="chip">🧾 VAT ${Math.round(p.thue*100)}%</span>` : ''}
-                </div>
-                ${p.ma_phu ? `<div style="margin-bottom:12px;font-size:12px;color:var(--info);font-weight:700;background:#EFF6FF;padding:8px 12px;border-radius:6px;border:1px solid #BFDBFE">🔄 ${escHtml(p.ma_phu)}</div>` : ''}
-                ${promoBannerHtml}
+            </div>
 
+            <!-- 2. HERO 2-COLUMN SECTION -->
+            <div class="detail-hero-layout">
+                <!-- Cột trái: Media & Bản vẽ -->
+                <div class="detail-gallery-box">
+                    <div class="detail-media-frame" onclick="openLightbox(document.getElementById('detail-main-img').src)" title="Bấm để phóng to ảnh xem chi tiết">
+                        ${hasImage ? `
+                            <img class="detail-media-img" id="detail-main-img" src="${escHtml(p.hinh_anh)}" alt="${escHtml(p.ten_sp)}">
+                            <span class="detail-zoom-hint">🔍 Phóng to HD</span>
+                        ` : `
+                            <div style="font-size:80px">${brandIcon}</div>
+                        `}
+                    </div>
+
+                    ${(hasImage && hasDrawing) ? `
+                        <div class="detail-thumb-bar">
+                            <button class="detail-thumb-btn active" id="btn-thumb-photo" onclick="switchDetailMedia('photo')">
+                                <span>📷 Ảnh Chụp SP</span>
+                            </button>
+                            <button class="detail-thumb-btn" id="btn-thumb-drawing" onclick="switchDetailMedia('drawing')">
+                                <span>📐 Bản Vẽ Kỹ Thuật</span>
+                            </button>
+                        </div>
+                    ` : ''}
+
+                    <!-- 3 Cam kết vàng -->
+                    <div class="detail-trust-pills">
+                        <div class="detail-trust-pill">
+                            <span>🛡️</span> Chính Hãng 100%
+                        </div>
+                        <div class="detail-trust-pill">
+                            <span>🚚</span> 17 Kho Miền Trung
+                        </div>
+                        <div class="detail-trust-pill">
+                            <span>🔧</span> Kỹ Thuật Hỗ Trợ
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cột phải: Tiêu đề, Giá chủ đạo & Bộ tính giá -->
+                <div class="detail-info-box">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                        <h2 class="detail-title">${escHtml(p.ten_sp)}</h2>
+                        <button class="btn btn-sm btn-outline" onclick="copyDetailText('${escJs(p.ten_sp)}', 'Đã copy tên sản phẩm')" title="Sao chép tên SP">
+                            📋 Copy
+                        </button>
+                    </div>
+
+                    <!-- Meta chips -->
+                    <div class="detail-meta-chips">
+                        <span class="detail-chip">📌 Mã SP: <strong>${escHtml(p.ma_sp)}</strong></span>
+                        ${p.ma_item ? `<span class="detail-chip">🔢 Mã Item SAP: <strong>${escHtml(p.ma_item)}</strong></span>` : ''}
+                        ${p.dvt ? `<span class="detail-chip">📦 ĐVT: <strong>${escHtml(p.dvt)}</strong></span>` : ''}
+                        ${p.thue > 0 ? `<span class="detail-chip">🧾 VAT ${Math.round(p.thue * 100)}%</span>` : ''}
+                    </div>
+
+                    ${p.ma_phu ? `
+                        <div style="font-size:12.5px;color:var(--info);font-weight:700;background:#EFF6FF;padding:8px 12px;border-radius:8px;border:1px solid #BFDBFE">
+                            🔄 Mã chuyển đổi / Mã phụ: <strong>${escHtml(p.ma_phu)}</strong>
+                        </div>
+                    ` : ''}
+
+                    <!-- HERO PRICE DISPLAY BOX -->
+                    <div class="detail-hero-price-card">
+                        <div class="detail-hero-price-top">
+                            <span class="detail-hero-price-label" id="detail-hero-price-label">GIÁ BÁN LẺ (ĐÃ CÓ VAT)</span>
+                            <span class="detail-hero-price-save" id="detail-hero-price-save"></span>
+                        </div>
+                        <div class="detail-hero-price-row">
+                            <span class="detail-hero-price-val" id="detail-hero-price-val">0 đ</span>
+                            <span class="detail-hero-price-original" id="detail-hero-price-original"></span>
+                        </div>
+                    </div>
+
+                    <!-- INTERACTIVE CUSTOMER TIER CALCULATOR -->
+                    <div class="detail-tier-box">
+                        <div class="detail-tier-label">
+                            <span>👥 CHỌN NHÓM KHÁCH ĐỂ TÍNH GIÁ NHANH:</span>
+                            <span style="font-size:11px;color:var(--text-muted)">Bấm chọn để đổi mức giá</span>
+                        </div>
+                        <div class="detail-tier-pills">
+                            ${DETAIL_TIER_OPTIONS.map(opt => `
+                                <button class="detail-tier-btn ${opt.key === currentDetailTier ? 'active' : ''}" 
+                                        id="tier-btn-${opt.key}"
+                                        onclick="selectDetailTier('${opt.key}')">
+                                    <span>${opt.label}</span>
+                                    <small style="opacity:0.85;margin-left:3px">(${opt.badge})</small>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- QUICK SPECS MINI GRID -->
+                    <div class="detail-specs-mini-grid">
+                        <div class="detail-spec-mini-item">
+                            <span class="detail-spec-mini-lbl">Kích thước:</span>
+                            <span class="detail-spec-mini-val">${escHtml(p.kich_thuoc || 'Theo tiêu chuẩn hãng')}</span>
+                        </div>
+                        <div class="detail-spec-mini-item">
+                            <span class="detail-spec-mini-lbl">Bảo hành:</span>
+                            <span class="detail-spec-mini-val" style="color:var(--success)">🛡️ ${escHtml(p.bao_hanh || 'Bảo hành chính hãng')}</span>
+                        </div>
+                    </div>
+
+                    <!-- PRIMARY CALL-TO-ACTIONS -->
+                    <div class="detail-primary-ctas">
+                        <button class="btn-cta-quote" onclick="addToQuote(${p.id})">
+                            <span>📋</span> Thêm Vào Báo Giá
+                        </button>
+                        <button class="btn-cta-zalo" onclick="copyProductZalo(${p.id})">
+                            <span>📱</span> Copy Gửi Zalo
+                        </button>
+                        <button class="btn-cta-icon-only ${isFav ? 'active' : ''}" id="modal-fav-btn" 
+                                onclick="toggleFav('${escJs(p.ma_sp)}');updateModalFavBtn('${escJs(p.ma_sp)}')" 
+                                title="Lưu yêu thích">
+                            ${isFav ? '❤️' : '🤍'}
+                        </button>
+                        <button class="btn-cta-icon-only ${isCmp ? 'active' : ''}" id="modal-cmp-btn" 
+                                onclick="toggleCompare('${escJs(p.ma_sp)}');updateModalCmpBtn('${escJs(p.ma_sp)}')" 
+                                title="Thêm vào so sánh">
+                            ⚖️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROMO BANNER (IF ANY) -->
+            ${promoBannerHtml}
+
+            <!-- 3. SUB-TABS NAVIGATION -->
+            <div class="detail-sub-tabs-bar">
+                <button class="detail-tab-btn active" id="dtab-btn-price" onclick="switchDetailTab('price')">
+                    <span>💰 Bảng Giá Chi Tiết</span>
+                </button>
+                <button class="detail-tab-btn" id="dtab-btn-stock" onclick="switchDetailTab('stock')">
+                    <span>📦 Tồn Kho 17 Kho Miền Trung</span>
+                    <span class="detail-tab-badge">${tongTon.toLocaleString('vi-VN')}</span>
+                </button>
+                <button class="detail-tab-btn" id="dtab-btn-specs" onclick="switchDetailTab('specs')">
+                    <span>📐 Thông Số &amp; Kỹ Thuật</span>
+                </button>
+                <button class="detail-tab-btn" id="dtab-btn-addons" onclick="switchDetailTab('addons')">
+                    <span>💡 Gợi Ý &amp; Phụ Kiện</span>
+                </button>
+            </div>
+
+            <!-- TAB PANEL 1: BẢNG GIÁ CHI TIẾT -->
+            <div class="detail-tab-panel active" id="dtab-panel-price">
                 <div class="modal-section" style="margin-bottom:0">
-                    <div class="sec-title">💰 Bảng Giá Chi Tiết Đa Cấp</div>
                     <table class="price-table">
-                        <thead><tr><th>Cấp giá khách hàng</th><th>Đơn giá</th><th>Chiết khấu so với NY</th></tr></thead>
-                        <tbody>${priceRows || '<tr><td colspan="3">Liên hệ</td></tr>'}</tbody>
+                        <thead>
+                            <tr>
+                                <th>Cấp Giá Khách Hàng</th>
+                                <th>Đơn Giá Áp Dụng (VNĐ)</th>
+                                <th>Chiết Khấu So Với Niêm Yết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${priceRows || '<tr><td colspan="3" style="text-align:center">Vui lòng liên hệ báo giá</td></tr>'}
+                        </tbody>
                     </table>
+                    ${histHtml}
+                </div>
+            </div>
+
+            <!-- TAB PANEL 2: TỒN KHO 17 KHO -->
+            <div class="detail-tab-panel" id="dtab-panel-stock">
+                <div class="detail-stock-wrapper">
+                    <!-- Cụm 1: 7 Chi Nhánh Miền Trung -->
+                    <div class="detail-stock-tier-card">
+                        <div class="detail-stock-tier-header">
+                            <span>🏪 Cụm 1: 7 Chi Nhánh HTPP Miền Trung</span>
+                            <span class="detail-stock-tier-total" style="color:${totalBranches > 0 ? 'var(--success)' : 'var(--text-muted)'}">
+                                Tổng tồn: <strong>${totalBranches.toLocaleString('vi-VN')}</strong> ${escHtml(p.dvt || 'SP')}
+                            </span>
+                        </div>
+                        <div class="detail-stock-tier-grid">
+                            ${renderStockNodes(MT_BRANCHES)}
+                        </div>
+                    </div>
+
+                    <!-- Cụm 2: 3 Tổng Kho Điều Phối Miền Trung -->
+                    <div class="detail-stock-tier-card">
+                        <div class="detail-stock-tier-header">
+                            <span>🏬 Cụm 2: 3 Tổng Kho &amp; Trung Tâm Điều Phối Miền Trung</span>
+                            <span class="detail-stock-tier-total" style="color:${totalHubs > 0 ? 'var(--success)' : 'var(--text-muted)'}">
+                                Tổng tồn: <strong>${totalHubs.toLocaleString('vi-VN')}</strong> ${escHtml(p.dvt || 'SP')}
+                            </span>
+                        </div>
+                        <div class="detail-stock-tier-grid">
+                            ${renderStockNodes(MT_HUBS)}
+                        </div>
+                    </div>
+
+                    <!-- Cụm 3: Nhà Máy Vệ Tinh Toàn Quốc -->
+                    <div class="detail-stock-tier-card">
+                        <div class="detail-stock-tier-header">
+                            <span>🏭 Cụm 3: Nhà Máy Sản Xuất &amp; Kho Vệ Tinh Toàn Quốc</span>
+                            <span class="detail-stock-tier-total" style="color:${totalPlants > 0 ? 'var(--success)' : 'var(--text-muted)'}">
+                                Tổng tồn: <strong>${totalPlants.toLocaleString('vi-VN')}</strong> ${escHtml(p.dvt || 'SP')}
+                            </span>
+                        </div>
+                        <div class="detail-stock-tier-grid">
+                            ${renderStockNodes(SATELLITE_PLANTS)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB PANEL 3: THÔNG SỐ & KỸ THUẬT -->
+            <div class="detail-tab-panel" id="dtab-panel-specs">
+                <table class="spec-table" style="margin-bottom:16px">
+                    <tbody>
+                        ${p.kich_thuoc ? `<tr><td style="width:200px"><strong>Kích thước / Quy cách</strong></td><td>${escHtml(p.kich_thuoc)}</td></tr>` : ''}
+                        ${p.bao_hanh ? `<tr><td><strong>Chính sách bảo hành</strong></td><td style="color:var(--success);font-weight:700">🛡️ ${escHtml(p.bao_hanh)}</td></tr>` : ''}
+                        ${p.diem_trung_bay ? `<tr><td><strong>Quy hoạch trưng bày</strong></td><td>🏪 ${escHtml(p.diem_trung_bay)}</td></tr>` : ''}
+                        <tr><td><strong>Nguồn danh mục</strong></td><td>${escHtml(p.nguon || 'Bảng giá chính thức 2026')}</td></tr>
+                        ${p.thong_tin ? `<tr><td><strong>Tiêu chuẩn &amp; Màu sắc</strong></td><td>${escHtml(p.thong_tin)}</td></tr>` : ''}
+                    </tbody>
+                </table>
+
+                ${p.thong_tin ? `
+                    <div class="modal-section">
+                        <div class="sec-title">📝 Mô Tả &amp; Tính Năng Chi Tiết</div>
+                        <div class="desc-box">${escHtml(p.thong_tin)}</div>
+                    </div>
+                ` : ''}
+            </div>
+
+            <!-- TAB PANEL 4: GỢI Ý & PHỤ KIỆN -->
+            <div class="detail-tab-panel" id="dtab-panel-addons">
+                ${p.khac ? `
+                    <div class="modal-section">
+                        <div class="sec-title">⚠️ Linh Kiện Đi Kèm &amp; Lưu Ý Lắp Đặt</div>
+                        <div class="note-box">${escHtml(p.khac)}</div>
+                    </div>
+                ` : ''}
+
+                ${p.goi_y_mua_kem ? `
+                    <div class="modal-section">
+                        <div class="sec-title">🛒 Gợi Ý Tư Vấn Sản Phẩm Mua Kèm</div>
+                        <div class="suggest-box">${escHtml(p.goi_y_mua_kem)}</div>
+                    </div>
+                ` : `
+                    <div class="suggest-box">
+                        💡 <strong>Gợi ý tư vấn thêm cho khách hàng:</strong> Vòi xịt vệ sinh cao cấp, van chia nước chữ T, dây cấp nước inox 304, phụ kiện phòng tắm đồng bộ.
+                    </div>
+                `}
+            </div>
+
+            <!-- 4. STICKY BOTTOM ACTION BAR -->
+            <div class="detail-sticky-bar">
+                <div class="detail-sticky-left">
+                    ${hasImage ? `<img src="${escHtml(p.hinh_anh)}" class="detail-sticky-thumb" alt="">` : ''}
+                    <div>
+                        <div class="detail-sticky-title">${escHtml(p.ten_sp)}</div>
+                        <div class="detail-sticky-price" id="detail-sticky-price-display">0 đ</div>
+                    </div>
+                </div>
+                <div class="detail-sticky-right">
+                    <button class="btn btn-sm btn-primary" onclick="addToQuote(${p.id})">
+                        <span>📋</span> + Báo Giá
+                    </button>
+                    <button class="btn btn-sm btn-success" onclick="copyProductZalo(${p.id})">
+                        <span>📱</span> Copy Zalo
+                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="shareProduct('${escJs(p.ma_sp)}','${encodeURIComponent(p.ten_sp)}')">
+                        <span>📤</span> Link
+                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="window.print()">
+                        <span>🖨️</span> In
+                    </button>
                 </div>
             </div>
         </div>
+    `;
 
-        <div class="modal-section">
-            <div class="sec-title">📏 Thông Số Kỹ Thuật &amp; Bảo Hành</div>
-            <table class="spec-table">
-                ${p.kich_thuoc ? `<tr><td>Kích thước / Quy cách</td><td>${escHtml(p.kich_thuoc)}</td></tr>` : ''}
-                ${p.bao_hanh   ? `<tr><td>Chính sách bảo hành</td><td style="color:var(--success)">🛡️ ${escHtml(p.bao_hanh)}</td></tr>` : ''}
-                ${p.diem_trung_bay ? `<tr><td>Quy hoạch trưng bày</td><td>🏪 ${escHtml(p.diem_trung_bay)}</td></tr>` : ''}
-                <tr><td>Nguồn danh mục</td><td>${escHtml(p.nguon || 'Bảng giá chính')}</td></tr>
-            </table>
-        </div>
-
-        ${p.thong_tin ? `
-        <div class="modal-section">
-            <div class="sec-title">📝 Mô Tả &amp; Tính Năng Sản Phẩm</div>
-            <div class="desc-box">${escHtml(p.thong_tin)}</div>
-        </div>` : ''}
-
-        ${p.khac ? `
-        <div class="modal-section">
-            <div class="sec-title">⚠️ Lưu Ý &amp; Linh Kiện Đi Kèm Trong Thùng</div>
-            <div class="note-box">${escHtml(p.khac)}</div>
-        </div>` : ''}
-
-        ${p.goi_y_mua_kem ? `
-        <div class="modal-section">
-            <div class="sec-title">🛒 Gợi Ý Tư Vấn Sản Phẩm Mua Kèm</div>
-            <div class="suggest-box">${escHtml(p.goi_y_mua_kem)}</div>
-        </div>` : ''}
-
-        ${stockHtml ? `
-        <div class="modal-section">
-            <div class="sec-title">
-                <span>📦 Tồn Kho Theo Khu Vực &amp; Nhà Máy</span>
-                <span style="margin-left:auto;color:${tongTon>0?'var(--success)':'var(--danger)'}">Tổng tồn: ${tongTon.toLocaleString('vi-VN')} ${escHtml(p.dvt)}</span>
-            </div>
-            <div class="stock-grid">${stockHtml}</div>
-        </div>` : ''}
-
-        ${histHtml}
-
-        <div class="modal-actions">
-            <button class="btn btn-primary" onclick="addToQuote(${p.id})">📋 Thêm vào báo giá</button>
-            <button class="btn btn-success" onclick="copyProductZalo(${p.id})">📱 Copy gửi Zalo</button>
-            <button class="btn btn-outline" id="modal-fav-btn" onclick="toggleFav('${escJs(p.ma_sp)}');updateModalFavBtn('${escJs(p.ma_sp)}')">
-                ${isFav ? '❤️ Đã lưu yêu thích' : '🤍 Lưu yêu thích'}
-            </button>
-            <button class="btn btn-outline" id="modal-cmp-btn" onclick="toggleCompare('${escJs(p.ma_sp)}');updateModalCmpBtn('${escJs(p.ma_sp)}')">
-                ${isCmp ? '⚖️ Đang so sánh' : '⚖️ So sánh'}
-            </button>
-            <button class="btn btn-outline" onclick="shareProduct('${escJs(p.ma_sp)}','${encodeURIComponent(p.ten_sp)}')">📤 Copy link SP</button>
-            <button class="btn btn-outline" onclick="window.print()">🖨️ In phiếu SP</button>
-        </div>
-    </div>`;
+    // Cập nhật giá hiển thị ban đầu theo nhóm đã chọn
+    updateDetailPriceDisplay();
 
     document.getElementById('modal-overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
     history.pushState({}, '', `?sp=${encodeURIComponent(p.ma_sp)}`);
+}
+
+function selectDetailTier(tierKey) {
+    currentDetailTier = tierKey;
+    document.querySelectorAll('.detail-tier-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.id === `tier-btn-${tierKey}`);
+    });
+    updateDetailPriceDisplay();
+}
+
+function updateDetailPriceDisplay() {
+    if (!currentDetailProduct) return;
+    const p = currentDetailProduct;
+    const priceValEl = document.getElementById('detail-hero-price-val');
+    const originalEl = document.getElementById('detail-hero-price-original');
+    const saveEl = document.getElementById('detail-hero-price-save');
+    const labelEl = document.getElementById('detail-hero-price-label');
+    const stickyPriceEl = document.getElementById('detail-sticky-price-display');
+
+    const price = p[currentDetailTier] || p.gia_ban_le || p.gia_niem_yet || 0;
+    const ny = p.gia_niem_yet || 0;
+    const tierName = PRICE_LABELS[currentDetailTier] || 'Giá bán';
+
+    if (labelEl) labelEl.textContent = tierName.toUpperCase();
+    if (priceValEl) priceValEl.textContent = formatPrice(price);
+    if (stickyPriceEl) stickyPriceEl.textContent = formatPrice(price);
+
+    if (ny > price && price > 0) {
+        const diff = ny - price;
+        const pct = Math.round((diff / ny) * 100);
+        if (originalEl) originalEl.textContent = formatPrice(ny);
+        if (saveEl) {
+            saveEl.style.display = 'inline-flex';
+            saveEl.textContent = `Tiết kiệm ${formatPrice(diff)} (-${pct}%)`;
+        }
+    } else {
+        if (originalEl) originalEl.textContent = '';
+        if (saveEl) saveEl.style.display = 'none';
+    }
+}
+
+function switchDetailTab(tabId) {
+    document.querySelectorAll('.detail-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.id === `dtab-btn-${tabId}`);
+    });
+    document.querySelectorAll('.detail-tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === `dtab-panel-${tabId}`);
+    });
+}
+
+function switchDetailMedia(type) {
+    if (!currentDetailProduct) return;
+    const p = currentDetailProduct;
+    const imgEl = document.getElementById('detail-main-img');
+    const btnPhoto = document.getElementById('btn-thumb-photo');
+    const btnDrawing = document.getElementById('btn-thumb-drawing');
+
+    if (type === 'drawing' && p.hinh_ban_ve) {
+        if (imgEl) imgEl.src = p.hinh_ban_ve;
+        if (btnDrawing) btnDrawing.classList.add('active');
+        if (btnPhoto) btnPhoto.classList.remove('active');
+    } else {
+        if (imgEl) imgEl.src = p.hinh_anh;
+        if (btnPhoto) btnPhoto.classList.add('active');
+        if (btnDrawing) btnDrawing.classList.remove('active');
+    }
+}
+
+function copyDetailText(text, successMsg) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => showToast(`✅ ${successMsg || 'Đã sao chép!'}`, 'success'));
+    } else {
+        showToast('⚠️ Không thể tự động copy', 'warning');
+    }
 }
 
 function openLightbox(src) {
