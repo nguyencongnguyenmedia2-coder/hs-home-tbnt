@@ -2,5 +2,10 @@
   "password_hash": "837b5139ae091710e6570ebe6ebaa48921388a5466ce02da39fc6e70af606b2a",
   "default_hint": "hoasenhome@2026",
   "last_updated": "29/10/2026 23:00:00",
-  "active_tokens": {}
+  "active_tokens": {
+    "a7a15740be584009bff896bf765bf66f": {
+      "created_at": "30/10/2026 21:01:04",
+      "expires_at": 1793973664.9557867
+    }
+  }
 }
