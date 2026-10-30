@@ -389,7 +389,7 @@ function renderAlbumWarrantyTables() {
         <div class="hb-grid" style="margin-bottom:20px">
             <div class="hb-card">
                 <div class="hb-card-title"><span>🚿 TUSLO &amp; TUSLO PRO</span><span class="chip">Album Trang 1</span></div>
-                <table class="hb-table">
+                <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="hb-table">
                     <thead><tr><th>Danh mục</th><th>Thời gian bảo hành</th></tr></thead>
                     <tbody>
                         <tr><td><b>Bồn cầu sứ</b></td><td style="color:#15803d;font-weight:700">10 năm</td></tr>
@@ -400,12 +400,12 @@ function renderAlbumWarrantyTables() {
                         <tr><td><b>Giá treo khăn điện</b></td><td style="color:#15803d;font-weight:700">2 năm</td></tr>
                         <tr><td><b>Phụ kiện nhà tắm</b></td><td style="color:#15803d;font-weight:700">3 năm</td></tr>
                     </tbody>
-                </table>
+                </table></div>
             </div>
 
             <div class="hb-card">
                 <div class="hb-card-title"><span>💎 TUSLO LUXURY</span><span class="chip">Album Trang 1</span></div>
-                <table class="hb-table">
+                <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="hb-table">
                     <thead><tr><th>Danh mục cao cấp</th><th>Thời gian bảo hành</th></tr></thead>
                     <tbody>
                         <tr><td><b>Bồn cầu thông minh</b></td><td style="color:#0f766e;font-weight:700">2 năm điện tử (10 năm sứ)</td></tr>
@@ -420,12 +420,12 @@ function renderAlbumWarrantyTables() {
                         <tr><td><b>Vách kính tắm</b></td><td style="color:#0f766e;font-weight:700">3 năm</td></tr>
                         <tr><td><b>Bồn tắm</b></td><td style="color:#0f766e;font-weight:700">2 năm</td></tr>
                     </tbody>
-                </table>
+                </table></div>
             </div>
 
             <div class="hb-card">
                 <div class="hb-card-title"><span>🍳 THƯƠNG HIỆU LUSHINE</span><span class="chip">Album Trang 1 &amp; 5</span></div>
-                <table class="hb-table">
+                <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="hb-table">
                     <thead><tr><th>Sản phẩm nhà bếp</th><th>Thời gian bảo hành</th></tr></thead>
                     <tbody>
                         <tr><td><b>Chậu rửa Inox 304 dập liền khối</b></td><td style="color:#b45309;font-weight:700">10 năm</td></tr>
@@ -433,7 +433,7 @@ function renderAlbumWarrantyTables() {
                         <tr><td><b>Vòi rửa chén &amp; Vòi cảm ứng</b></td><td style="color:#b45309;font-weight:700">3 năm</td></tr>
                         <tr><td><b>Phụ kiện xi phông &amp; ống xả</b></td><td style="color:#b45309;font-weight:700">2 - 3 năm</td></tr>
                     </tbody>
-                </table>
+                </table></div>
             </div>
         </div>`;
     box.prepend(wrap);
@@ -490,13 +490,13 @@ function renderChinhSachKinhDoanh() {
             </div>
             <div class="hb-card">
                 <div class="hb-card-title"><span>🗓️ Chiết khấu Tháng</span></div>
-                <table class="hb-table"><thead><tr><th>#</th><th>Doanh số tháng</th><th>Mức CK</th></tr></thead><tbody>${simple(cs.ck_thang || [])}</tbody></table>
+                <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="hb-table"><thead><tr><th>#</th><th>Doanh số tháng</th><th>Mức CK</th></tr></thead><tbody>${simple(cs.ck_thang || [])}</tbody></table></div>
                 <div class="note-box" style="font-size:12px;margin-top:8px">Tháng N: từ 25 tháng N-1 đến hết 24 tháng N · Cấn trừ từ 05 đến cuối tháng N+1.</div>
             </div>
             <div class="hb-card">
                 <div class="hb-card-title"><span>📅 Chiết khấu Quý</span></div>
-                <table class="hb-table"><thead><tr><th>#</th><th>Doanh số quý</th><th>Mức CK</th></tr></thead><tbody>${simple(cs.ck_quy || [])}</tbody></table>
-                ${lich ? `<table class="hb-table" style="margin-top:10px"><thead><tr><th>Quý</th><th>Thời gian quý</th><th>Thời gian cấn trừ</th></tr></thead><tbody>${lich}</tbody></table>` : ''}
+                <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="hb-table"><thead><tr><th>#</th><th>Doanh số quý</th><th>Mức CK</th></tr></thead><tbody>${simple(cs.ck_quy || [])}</tbody></table></div>
+                ${lich ? `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px"><table class="hb-table"><thead><tr><th>Quý</th><th>Thời gian quý</th><th>Thời gian cấn trừ</th></tr></thead><tbody>${lich}</tbody></table></div>` : ''}
             </div>
         </div>`;
     box.prepend(wrap);

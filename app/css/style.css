@@ -4002,6 +4002,248 @@ body {
     }
 }
 
+/* ==================== SYSTEM-WIDE RESPONSIVE & MOBILE REFACTORING ==================== */
+
+/* 1. Global Viewport & Container Reset */
+html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+}
+.main {
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden;
+}
+
+/* 2. Responsive Cards & Grids on Tablet & Mobile (<= 860px) */
+@media (max-width: 860px) {
+    .main {
+        padding: 14px 12px 115px !important;
+    }
+    .hb-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+    .ctkm-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+    .v4-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+}
+
+/* 3. Dedicated Smartphone Refactoring (<= 600px) */
+@media (max-width: 600px) {
+    .main {
+        padding: 10px 8px 115px !important;
+    }
+
+    /* Titles & Section Headers */
+    .v4-section-title {
+        font-size: 15.5px !important;
+        line-height: 1.4 !important;
+        margin: 16px 0 10px !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    .v4-section-title small {
+        display: block !important;
+        width: 100% !important;
+        font-size: 11.5px !important;
+    }
+
+    /* Tab 2: Combos & Album */
+    .combo-switcher-wrap {
+        padding: 6px 8px !important;
+        gap: 6px !important;
+        margin-bottom: 14px !important;
+        border-radius: 12px !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    .combo-switch-btn {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        gap: 5px !important;
+        border-radius: 99px !important;
+    }
+    .combo-switch-badge {
+        font-size: 9.5px !important;
+        padding: 1px 6px !important;
+    }
+    .combo-hero-card {
+        border-radius: 14px !important;
+        margin-bottom: 16px !important;
+    }
+    .combo-hero-header {
+        padding: 12px 14px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+    }
+    .combo-hero-title {
+        font-size: 15px !important;
+        flex-wrap: wrap !important;
+    }
+    .combo-preview-bar {
+        padding: 10px 12px !important;
+        gap: 6px !important;
+    }
+    .combo-preview-item {
+        width: 68px !important;
+    }
+    .combo-preview-thumb {
+        width: 54px !important;
+        height: 54px !important;
+        border-radius: 8px !important;
+    }
+    .combo-table-wrap {
+        padding: 0 8px 8px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    .combo-table-wrap table {
+        min-width: 480px !important;
+        font-size: 11.5px !important;
+    }
+    .combo-footer-box {
+        padding: 12px 14px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    .combo-price-summary {
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: baseline !important;
+    }
+    .combo-final-price {
+        font-size: 20px !important;
+    }
+    .combo-save-pill {
+        font-size: 11px !important;
+        padding: 3px 8px !important;
+    }
+    .combo-footer-box .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 10px !important;
+        font-size: 12.5px !important;
+    }
+
+    /* Tab 3: Bảng giá Excel Đa Cấp */
+    .excel-table-wrap {
+        border-radius: 12px !important;
+        max-height: 65vh !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    .excel-table {
+        font-size: 11px !important;
+    }
+    .excel-table th {
+        padding: 8px 10px !important;
+        font-size: 10.5px !important;
+    }
+    .excel-table td {
+        padding: 8px 10px !important;
+    }
+    .mobile-scroll-hint {
+        display: block !important;
+        padding: 7px 10px !important;
+        margin-bottom: 8px !important;
+        background: rgba(2, 132, 199, 0.08) !important;
+        border: 1px dashed #0284C7 !important;
+        border-radius: 8px !important;
+        font-size: 11.5px !important;
+        color: #0369A1 !important;
+        text-align: center !important;
+    }
+
+    /* Tab 4 & 5: CTKM & Chính Sách Chiết Khấu */
+    .hb-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    .hb-card {
+        padding: 12px 12px !important;
+        border-radius: 12px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+    .hb-card-title {
+        font-size: 14.5px !important;
+        margin-bottom: 10px !important;
+        padding-bottom: 8px !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    .hb-card-title .chip {
+        font-size: 10px !important;
+        padding: 2px 7px !important;
+    }
+    .hb-card > div[style*="overflow-x:auto"] {
+        margin: 0 -4px !important;
+        border-radius: 8px !important;
+    }
+    .hb-table {
+        font-size: 11.5px !important;
+        min-width: 300px !important;
+    }
+    .hb-table th {
+        padding: 7px 9px !important;
+        font-size: 11px !important;
+    }
+    .hb-table td {
+        padding: 7px 9px !important;
+    }
+
+    /* Modals: Quote, Compare, Favorites */
+    .quote-wrap, .cmp-wrap {
+        padding: 14px 10px !important;
+    }
+    .modal-page-title {
+        font-size: 16px !important;
+        margin-bottom: 12px !important;
+    }
+    .quote-table, .cmp-table {
+        font-size: 11.5px !important;
+    }
+    .quote-table th, .cmp-table th {
+        padding: 8px 8px !important;
+        font-size: 11px !important;
+    }
+    .quote-table td, .cmp-table td {
+        padding: 8px 8px !important;
+    }
+    .qty-input {
+        width: 48px !important;
+        padding: 4px !important;
+        font-size: 12px !important;
+    }
+
+    /* Global Footer (Nguyen Cong Nguyen) */
+    .site-footer {
+        padding: 24px 14px 20px !important;
+        margin-top: 32px !important;
+    }
+    .site-footer-logo {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    .site-footer-dev {
+        font-size: 13px !important;
+    }
+    .footer-contact-pill {
+        padding: 6px 14px !important;
+        font-size: 12px !important;
+    }
+}
+
 @media print {
     .header, .mobile-bottom-nav, .mobile-drawer, .drawer-backdrop,
     #catalog-search-wrapper, .modal-close, .modal-actions, .btn, .fab, .pagination {
@@ -4014,6 +4256,248 @@ body {
 }
 
 /* ==================== PRINT STYLES ==================== */
+/* ==================== SYSTEM-WIDE RESPONSIVE & MOBILE REFACTORING ==================== */
+
+/* 1. Global Viewport & Container Reset */
+html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+}
+.main {
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden;
+}
+
+/* 2. Responsive Cards & Grids on Tablet & Mobile (<= 860px) */
+@media (max-width: 860px) {
+    .main {
+        padding: 14px 12px 115px !important;
+    }
+    .hb-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+    .ctkm-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+    .v4-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+}
+
+/* 3. Dedicated Smartphone Refactoring (<= 600px) */
+@media (max-width: 600px) {
+    .main {
+        padding: 10px 8px 115px !important;
+    }
+
+    /* Titles & Section Headers */
+    .v4-section-title {
+        font-size: 15.5px !important;
+        line-height: 1.4 !important;
+        margin: 16px 0 10px !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    .v4-section-title small {
+        display: block !important;
+        width: 100% !important;
+        font-size: 11.5px !important;
+    }
+
+    /* Tab 2: Combos & Album */
+    .combo-switcher-wrap {
+        padding: 6px 8px !important;
+        gap: 6px !important;
+        margin-bottom: 14px !important;
+        border-radius: 12px !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    .combo-switch-btn {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        gap: 5px !important;
+        border-radius: 99px !important;
+    }
+    .combo-switch-badge {
+        font-size: 9.5px !important;
+        padding: 1px 6px !important;
+    }
+    .combo-hero-card {
+        border-radius: 14px !important;
+        margin-bottom: 16px !important;
+    }
+    .combo-hero-header {
+        padding: 12px 14px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+    }
+    .combo-hero-title {
+        font-size: 15px !important;
+        flex-wrap: wrap !important;
+    }
+    .combo-preview-bar {
+        padding: 10px 12px !important;
+        gap: 6px !important;
+    }
+    .combo-preview-item {
+        width: 68px !important;
+    }
+    .combo-preview-thumb {
+        width: 54px !important;
+        height: 54px !important;
+        border-radius: 8px !important;
+    }
+    .combo-table-wrap {
+        padding: 0 8px 8px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    .combo-table-wrap table {
+        min-width: 480px !important;
+        font-size: 11.5px !important;
+    }
+    .combo-footer-box {
+        padding: 12px 14px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    .combo-price-summary {
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: baseline !important;
+    }
+    .combo-final-price {
+        font-size: 20px !important;
+    }
+    .combo-save-pill {
+        font-size: 11px !important;
+        padding: 3px 8px !important;
+    }
+    .combo-footer-box .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 10px !important;
+        font-size: 12.5px !important;
+    }
+
+    /* Tab 3: Bảng giá Excel Đa Cấp */
+    .excel-table-wrap {
+        border-radius: 12px !important;
+        max-height: 65vh !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    .excel-table {
+        font-size: 11px !important;
+    }
+    .excel-table th {
+        padding: 8px 10px !important;
+        font-size: 10.5px !important;
+    }
+    .excel-table td {
+        padding: 8px 10px !important;
+    }
+    .mobile-scroll-hint {
+        display: block !important;
+        padding: 7px 10px !important;
+        margin-bottom: 8px !important;
+        background: rgba(2, 132, 199, 0.08) !important;
+        border: 1px dashed #0284C7 !important;
+        border-radius: 8px !important;
+        font-size: 11.5px !important;
+        color: #0369A1 !important;
+        text-align: center !important;
+    }
+
+    /* Tab 4 & 5: CTKM & Chính Sách Chiết Khấu */
+    .hb-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    .hb-card {
+        padding: 12px 12px !important;
+        border-radius: 12px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+    .hb-card-title {
+        font-size: 14.5px !important;
+        margin-bottom: 10px !important;
+        padding-bottom: 8px !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    .hb-card-title .chip {
+        font-size: 10px !important;
+        padding: 2px 7px !important;
+    }
+    .hb-card > div[style*="overflow-x:auto"] {
+        margin: 0 -4px !important;
+        border-radius: 8px !important;
+    }
+    .hb-table {
+        font-size: 11.5px !important;
+        min-width: 300px !important;
+    }
+    .hb-table th {
+        padding: 7px 9px !important;
+        font-size: 11px !important;
+    }
+    .hb-table td {
+        padding: 7px 9px !important;
+    }
+
+    /* Modals: Quote, Compare, Favorites */
+    .quote-wrap, .cmp-wrap {
+        padding: 14px 10px !important;
+    }
+    .modal-page-title {
+        font-size: 16px !important;
+        margin-bottom: 12px !important;
+    }
+    .quote-table, .cmp-table {
+        font-size: 11.5px !important;
+    }
+    .quote-table th, .cmp-table th {
+        padding: 8px 8px !important;
+        font-size: 11px !important;
+    }
+    .quote-table td, .cmp-table td {
+        padding: 8px 8px !important;
+    }
+    .qty-input {
+        width: 48px !important;
+        padding: 4px !important;
+        font-size: 12px !important;
+    }
+
+    /* Global Footer (Nguyen Cong Nguyen) */
+    .site-footer {
+        padding: 24px 14px 20px !important;
+        margin-top: 32px !important;
+    }
+    .site-footer-logo {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    .site-footer-dev {
+        font-size: 13px !important;
+    }
+    .footer-contact-pill {
+        padding: 6px 14px !important;
+        font-size: 12px !important;
+    }
+}
+
 @media print {
     .header, .mobile-bottom-nav, .mobile-drawer, .drawer-backdrop,
     #catalog-search-wrapper, .modal-close, .modal-actions, .btn, .fab, .pagination, .site-footer {
