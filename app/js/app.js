@@ -306,6 +306,14 @@ function closeMobileMenu() {
 }
 
 function switchTab(tabId) {
+    if (currentTab === tabId) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (tabId === 'catalog') {
+            const input = document.getElementById('search-input');
+            if (input) input.focus();
+        }
+        return;
+    }
     currentTab = tabId;
     document.querySelectorAll('.nav-tab').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === tabId);
@@ -482,12 +490,14 @@ function renderGridCard(p, wh = '') {
 
     return `<div class="product-card" onclick="openDetail(${p.id})">
         <div class="card-badges">
-            ${isStudioImg ? '<span class="badge-studio">📸 STUDIO HD</span>' : ''}
-            ${p.hang_ban_chay ? '<span class="badge-hot">🔥 HOT</span>' : ''}
-            ${p.xa_kho ? '<span class="badge-promo">🏷️ XẢ KHO</span>' : ''}
-            ${p.ctkm_tuslo ? '<span class="badge-promo">🎁 TẶNG QUÀ</span>' : ''}
-            ${p.uu_tien_online ? '<span class="badge-online">🌐 ONLINE</span>' : ''}
-            ${p.ngung_nhap ? '<span class="badge-discont">⛔ NGƯNG NHẬP</span>' : ''}
+            <div class="badges-left">
+                ${p.hang_ban_chay ? '<span class="badge-hot">🔥 HOT</span>' : ''}
+                ${p.xa_kho ? '<span class="badge-promo">🏷️ XẢ KHO</span>' : ''}
+                ${p.ctkm_tuslo ? '<span class="badge-promo">🎁 QUÀ</span>' : ''}
+                ${p.uu_tien_online ? '<span class="badge-online">🌐 ONLINE</span>' : ''}
+                ${p.ngung_nhap ? '<span class="badge-discont">⛔ NGƯNG NHẬP</span>' : ''}
+                ${isStudioImg ? '<span class="badge-studio">📸 STUDIO</span>' : ''}
+            </div>
             ${stock.total >= 0 ? `<span class="badge-stock ${stock.cls}">${stock.label}</span>` : ''}
         </div>
         <div class="card-image-wrap">${imgHtml}</div>
@@ -510,10 +520,16 @@ function renderGridCard(p, wh = '') {
                 </div>` : ''}
             </div>
             <div class="card-actions">
-                <button class="btn-detail" onclick="event.stopPropagation();openDetail(${p.id})">Chi tiết ▸</button>
-                <button class="btn-action-sm ${isFav?'active':''}" onclick="event.stopPropagation();toggleFav('${escJs(p.ma_sp)}')" title="Lưu yêu thích">❤️</button>
-                <button class="btn-action-sm ${isCmp?'active':''}" onclick="event.stopPropagation();toggleCompare('${escJs(p.ma_sp)}')" title="So sánh">⚖️</button>
-                <button class="btn-action-sm ${isQuote?'active':''}" onclick="event.stopPropagation();addToQuote(${p.id})" title="Thêm vào báo giá">📋</button>
+                <button class="btn-card-quote ${isQuote ? 'active' : ''}" onclick="event.stopPropagation();addToQuote(${p.id})" title="Thêm vào bảng báo giá">
+                    <span class="btn-quote-icon">${isQuote ? '✓' : '＋'}</span>
+                    <span class="btn-quote-text">${isQuote ? 'Đã Báo Giá' : 'Báo Giá'}</span>
+                </button>
+                <button class="btn-card-icon btn-fav-icon ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFav('${escJs(p.ma_sp)}')" title="Lưu yêu thích">
+                    ${isFav ? '❤️' : '🤍'}
+                </button>
+                <button class="btn-card-icon btn-cmp-icon ${isCmp ? 'active' : ''}" onclick="event.stopPropagation();toggleCompare('${escJs(p.ma_sp)}')" title="So sánh">
+                    ⚖️
+                </button>
             </div>
         </div>
     </div>`;
