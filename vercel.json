@@ -1,12 +1,9 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "app",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/admin", "destination": "/app/admin.html" },
-    { "source": "/admin.html", "destination": "/app/admin.html" },
-    { "source": "/", "destination": "/app/index.html" },
-    { "source": "/index.html", "destination": "/app/index.html" },
-    { "source": "/:path*", "destination": "/app/:path*" }
+    { "source": "/admin", "destination": "/admin.html" }
   ],
   "headers": [
     {
@@ -18,4 +15,3 @@
     }
   ]
 }
-
