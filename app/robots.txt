@@ -23,3 +23,4 @@ Disallow: /data/admin_auth.json
 
 # XML Sitemap
 Sitemap: https://hs-home-tbnt.vercel.app/sitemap.xml
+
