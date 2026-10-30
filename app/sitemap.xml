@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+    <!-- Trang chủ chính -->
+    <url>
+        <loc>https://hs-home-tbnt.vercel.app/</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Tab Tra Cứu Sản Phẩm (1.804 SP) -->
+    <url>
+        <loc>https://hs-home-tbnt.vercel.app/?tab=catalog</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.95</priority>
+    </url>
+
+    <!-- Tab Album & Combo Bán Hàng 2026 -->
+    <url>
+        <loc>https://hs-home-tbnt.vercel.app/?tab=combos</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.90</priority>
+    </url>
+
+    <!-- Tab Bảng Giá Đa Cấp & Tồn Kho 17 Kho -->
+    <url>
+        <loc>https://hs-home-tbnt.vercel.app/?tab=pricelist</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.90</priority>
+    </url>
+
+    <!-- Tab Chi Nhánh & 112 Cửa Hàng Miền Trung -->
+    <url>
+        <loc>https://hs-home-tbnt.vercel.app/?tab=stores</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Tab Chương Trình Khuyến Mãi & Xả Kho -->
+    <url>
+        <loc>https://hs-home-tbnt.vercel.app/?tab=promos</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.80</priority>
+    </url>
+
+    <!-- Tab Chính Sách Chiết Khấu Thầu Thợ & Đại Lý -->
+    <url>
+        <loc>https://hs-home-tbnt.vercel.app/?tab=policies</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.80</priority>
+    </url>
+
+    <!-- Tab Kiến Thức SP & Chính Sách Bảo Hành -->
+    <url>
+        <loc>https://hs-home-tbnt.vercel.app/?tab=knowledge</loc>
+        <lastmod>2026-10-30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+    </url>
+
+</urlset>

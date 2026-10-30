@@ -80,6 +80,19 @@ body {
     body { padding-bottom: 0; }
 }
 
+/* Screen Reader Only - SEO semantic accessibility */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
 /* ======================== HEADER ======================== */
 .header {
     position: sticky;

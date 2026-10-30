@@ -1,0 +1,25 @@
+# Robots.txt for Hoa Sen Home Sales Pro
+# https://hs-home-tbnt.vercel.app/
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /data/
+Disallow: /admin.html
+Disallow: /data/admin_auth.json
+
+# Googlebot & Bingbot specific
+User-agent: Googlebot
+Allow: /
+Disallow: /admin.html
+Disallow: /data/admin_auth.json
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin.html
+Disallow: /data/admin_auth.json
+
+# XML Sitemap
+Sitemap: https://hs-home-tbnt.vercel.app/sitemap.xml
