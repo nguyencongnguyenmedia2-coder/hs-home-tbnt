@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "echo 'Building Hoa Sen Home App'",
   "outputDirectory": "app",
   "cleanUrls": true,
   "rewrites": [
