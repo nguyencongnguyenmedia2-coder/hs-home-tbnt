@@ -13,15 +13,26 @@ import webbrowser
 from datetime import datetime
 
 # Đảm bảo mã hóa UTF-8 cho Windows console (hỗ trợ cả chế độ Windowed không có console)
-if sys.stdout is not None and hasattr(sys.stdout, 'buffer'):
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-else:
-    sys.stdout = io.StringIO()
+class _SafeNullWriter:
+    def write(self, s): pass
+    def flush(self): pass
+    def isatty(self): return False
 
-if sys.stderr is not None and hasattr(sys.stderr, 'buffer'):
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
-else:
-    sys.stderr = io.StringIO()
+try:
+    if sys.stdout is not None and getattr(sys.stdout, 'buffer', None) is not None:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    else:
+        sys.stdout = _SafeNullWriter()
+except Exception:
+    sys.stdout = _SafeNullWriter()
+
+try:
+    if sys.stderr is not None and getattr(sys.stderr, 'buffer', None) is not None:
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+    else:
+        sys.stderr = _SafeNullWriter()
+except Exception:
+    sys.stderr = _SafeNullWriter()
 
 # Xác định thư mục gốc của ứng dụng (hỗ trợ cả khi chạy file .py và khi đóng gói .exe qua PyInstaller)
 if getattr(sys, 'frozen', False):

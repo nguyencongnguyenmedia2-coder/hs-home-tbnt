@@ -81,6 +81,7 @@
                     <span class="badge badge-quote" id="quote-badge" style="display:none">0</span>
                 </button>
             </div>
+
         </div>
     </header>
 
@@ -253,8 +254,18 @@
                     <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</button>
                 </div>
 
+                <!-- Mobile Filter Toggle Bar (Chỉ hiển thị trên Mobile để thu gọn bộ lọc) -->
+                <div class="mobile-filter-bar">
+                    <button type="button" class="btn-toggle-filter-mobile" id="btn-toggle-filter-mobile" onclick="toggleMobileFilterRow()">
+                        <span class="m-filter-icon">🎛️</span>
+                        <span class="m-filter-text">Bộ Lọc Chi Tiết &amp; Kho Hàng</span>
+                        <span class="filter-badge-count" id="mobile-filter-badge" style="display:none">0</span>
+                        <span class="filter-chevron" id="mobile-filter-chevron">▼</span>
+                    </button>
+                </div>
+
                 <!-- Filter Controls -->
-                <div class="filter-row">
+                <div class="filter-row" id="filter-row">
                     <div class="filter-select-wrap">
                         <span class="filter-select-icon">🏷️</span>
                         <select id="filter-brand" onchange="applyFilters()">

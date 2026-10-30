@@ -247,6 +247,56 @@ function toggleMobileMenu() {
     }
 }
 
+function toggleMobileFilterRow() {
+    const row = document.getElementById('filter-row');
+    const chevron = document.getElementById('mobile-filter-chevron');
+    const btn = document.getElementById('btn-toggle-filter-mobile');
+    if (!row) return;
+    const isOpen = row.classList.contains('mobile-open');
+    if (isOpen) {
+        row.classList.remove('mobile-open');
+        if (chevron) chevron.textContent = '▼';
+        if (btn) btn.classList.remove('expanded');
+    } else {
+        row.classList.add('mobile-open');
+        if (chevron) chevron.textContent = '▲';
+        if (btn) btn.classList.add('expanded');
+    }
+}
+
+function updateMobileFilterBadge() {
+    const brand = document.getElementById('filter-brand')?.value || '';
+    const group = document.getElementById('filter-group')?.value || '';
+    const wh = document.getElementById('filter-warehouse')?.value || '';
+    const sort = document.getElementById('filter-sort')?.value || 'default';
+    const hasImg = document.getElementById('filter-has-img')?.checked || false;
+    const instock = document.getElementById('filter-instock')?.checked || false;
+    const hotOnly = document.getElementById('filter-hot')?.checked || false;
+    const promoOnly = document.getElementById('filter-promo')?.checked || false;
+    const onlineOnly = document.getElementById('filter-online')?.checked || false;
+
+    let count = 0;
+    if (brand) count++;
+    if (group) count++;
+    if (wh) count++;
+    if (sort !== 'default') count++;
+    if (hasImg) count++;
+    if (instock) count++;
+    if (hotOnly) count++;
+    if (promoOnly) count++;
+    if (onlineOnly) count++;
+
+    const badge = document.getElementById('mobile-filter-badge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline-flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+
 function closeMobileMenu() {
     const d = document.getElementById('mobile-drawer');
     const b = document.getElementById('drawer-backdrop');
@@ -341,6 +391,7 @@ function applyFilters() {
     filteredProducts = results;
     currentPage = 1;
     currentTablePage = 1;
+    updateMobileFilterBadge();
     renderProducts();
     renderMasterTable();
 }
